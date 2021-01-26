@@ -6,8 +6,26 @@
     <style>
         #chartdiv {
             width: 100%;
-            height: 500px;
+            height: 100vh;
         }
+        .map-marker {
+    /* adjusting for the marker dimensions
+    so that it is centered on coordinates */
+    margin-left: 7px;
+    margin-top: 0px;
+    box-sizing: border-box;
+}
+
+.bar {
+    width: 2px;
+    -webkit-border-radius: 30px;
+    -moz-border-radius: 30px;
+    border-radius: 30px;
+    background-color: #716f42;
+    z-index: 10;
+    position: absolute;
+    box-sizing: border-box;
+}
     </style>
 
     <!-- Resources -->
@@ -15,7 +33,11 @@
     <script src="https://cdn.amcharts.com/lib/4/maps.js"></script>
     <script src="https://cdn.amcharts.com/lib/4/geodata/worldLow.js"></script>
     <script src="https://cdn.amcharts.com/lib/4/themes/animated.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.5.0/d3.min.js" integrity="sha512-0XfwGD1nxplHpehcSVI7lY+m/5L37PNHDt+DOc7aLFckwPXjnjeA1oeNbru7YeI4VLs9i+ADnnHEhP69C9CqTA==" crossorigin="anonymous"></script>
+    <script src="https://www.amcharts.com/lib/4/plugins/bullets.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.5.0/d3.min.js"
+        integrity="sha512-0XfwGD1nxplHpehcSVI7lY+m/5L37PNHDt+DOc7aLFckwPXjnjeA1oeNbru7YeI4VLs9i+ADnnHEhP69C9CqTA=="
+        crossorigin="anonymous"></script>
 
 </head>
 
@@ -24,7 +46,7 @@
     <script>
 
         // Get survey dataset
-        async function getDataset(){
+        async function getDataset() {
 
             return await d3.csv("./Salary Survey 2021 Responses - CLEAN - Salary Survey 2021.csv", (d) => {
                 const bIsOfficeSameCity = d["Office - Same City"] == "TRUE";
@@ -38,6 +60,7 @@
                     residence_country: d["Residence - Country"],
                     office_metro: d["Office - Metro"],
                     office_country: d["Office - Country Clean"],
+                    adjusted_ttp_usd: Number(d["Adjusted TTP USD"].replace("$", "").replaceAll(",", ""))
                 }
             });
             console.log("oSurveyData", oSurveyData);
@@ -66,11 +89,11 @@
             chart.zoomControl = new am4maps.ZoomControl();
 
             // Set initial zoom
-            chart.homeZoomLevel = 2.5;
-            chart.homeGeoPoint = {
-                latitude: 51,
-                longitude: -23
-            };
+            chart.homeZoomLevel = 1;
+            // chart.homeGeoPoint = {
+            //     latitude: 51,
+            //     longitude: -23
+            // };
 
             // Create map polygon series
             var polygonSeries = chart.series.push(new am4maps.MapPolygonSeries());
@@ -83,164 +106,207 @@
             var imageTemplate = imageSeries.mapImages.template;
             imageTemplate.tooltipText = "{title}";
             imageTemplate.nonScaling = true;
-
-            var marker = imageTemplate.createChild(am4core.Sprite);
-            marker.path = targetSVG;
-            marker.horizontalCenter = "middle";
-            marker.verticalCenter = "middle";
-            marker.scale = 0.7;
-            marker.fill = interfaceColors.getFor("alternativeBackground");
-
             imageTemplate.propertyFields.latitude = "latitude";
             imageTemplate.propertyFields.longitude = "longitude";
 
-            const dataset = await getDataset();
+            // var marker = imageTemplate.createChild(am4core.Sprite);
+            // marker.path = targetSVG;
+            // marker.horizontalCenter = "middle";
+            // marker.verticalCenter = "middle";
+            // marker.scale = 0.7;
+            // marker.fill = interfaceColors.getFor("alternativeBackground");            
+
+            var circle = imageTemplate.createChild(am4core.Circle);
+            circle.propertyFields.fill = "color";
+            circle.propertyFields.radius = "radius";
+            circle.propertyFields.stroke = "stroke";
+            circle.propertyFields.strokeWidth = "strokeWidth";
+            circle.fillOpacity = 0.75;
+            circle.strokeOpacity = 0.45;
+            //circle.radius = 3;
+
+
+            // add events to recalculate map position when the map is moved or zoomed
+            chart.events.on("ready", updateCustomMarkers);
+            chart.events.on("mappositionchanged", updateCustomMarkers);
+
+            // this function will take current images on the map and create HTML elements for them
+            function updateCustomMarkers(event) {
+
+                // go through all of the images
+                imageSeries.mapImages.each(function (image) {
+                    // check if it has corresponding HTML element
+                    if (!image.dummyData || !image.dummyData.externalElement) {
+                        // create onex
+                        image.dummyData = {
+                            externalElement: createCustomMarker(image)
+                        };
+                    }
+
+                    // reposition the element accoridng to coordinates
+                    var xy = chart.geoPointToSVG({ longitude: image.longitude, latitude: image.latitude });
+                    image.dummyData.externalElement.style.top = xy.y + 'px';
+                    image.dummyData.externalElement.style.left = xy.x + 'px';
+                });
+
+            }
+
+            // this function creates and returns a new marker element
+            function createCustomMarker(image) {
+
+                var chart = image.dataItem.component.chart;
+
+                // create holder
+                var holder = document.createElement('div');
+                holder.className = 'map-marker';
+                holder.title = image.dataItem.dataContext.title;
+                holder.style.position = 'absolute';
+
+                // maybe add a link to it?
+                // if (undefined != image.url) {
+                //     holder.onclick = function () {
+                //         window.location.href = image.url;
+                //     };
+                //     holder.className += ' map-clickable';
+                // }
+
+                // create dot
+                // var dot = document.createElement('div');
+                // dot.className = 'dot';
+                // holder.appendChild(dot);
+
+                // // create pulse
+                // var pulse = document.createElement('div');
+                // pulse.className = 'pulse';
+                // holder.appendChild(pulse);
+
+                // create vertical bar
+                var bar = document.createElement('div');
+                bar.className = 'bar';
+                // bar.style.width = '10px';
+                bar.style.marginTop = `${-image.dataItem.dataContext.height + image.dataItem.dataContext.radius}px`;
+                bar.style.height = `${image.dataItem.dataContext.height}px`;
+
+                holder.appendChild(bar);
+
+                // append the marker to the map container
+                chart.svgContainer.htmlElement.appendChild(holder);
+
+                return holder;
+            }
+
+            // Add line
+            var lineSeries = chart.series.push(new am4maps.MapLineSeries());
+            lineSeries.dataFields.multiGeoLine = "multiGeoLine";
+            lineSeries.mapLines.template.shortestDistance = false;
+            //lineSeries.mapLines.template.precision = 50;
+
+            var lineTemplate = lineSeries.mapLines.template;
+            lineTemplate.nonScalingStroke = true;
+            // lineTemplate.arrow.nonScaling = true;
+            // lineTemplate.arrow.width = 4;
+            // lineTemplate.arrow.height = 4;
+            lineTemplate.stroke = interfaceColors.getFor("alternativeBackground");
+            lineTemplate.fill = interfaceColors.getFor("alternativeBackground");
+            lineTemplate.line.strokeOpacity = 0.4;
+            //lineTemplate.line.propertyFields.strokeWidth = "avg_ttp";
+            lineTemplate.line.propertyFields.shortestDistance = "shortestDistance";
+
+
+            // Get dataset
+            const mainDataset = await getDataset();
+            const dataset = mainDataset;//.filter(d => d.is_office_same_city)
+
+            dataset.sort((a, b) => {
+                return d3.descending(a.adjusted_ttp_usd, b.adjusted_ttp_usd);
+            });
+
+            const ttpExtent = d3.extent(dataset, d => d.adjusted_ttp_usd);
+            const ttpScale = d3.scaleLinear().domain(ttpExtent).range([1, 10]);
+            const radiusScale = d3.scaleLinear().domain(ttpExtent).range([3, 10]);
+            const heightScale = d3.scaleLinear().domain(ttpExtent).range([10, 100]);
 
             const points = [];
             const allPoints = {};
+            const allConnections = {};
 
             dataset.forEach((d, i) => {
                 const key = `${d.residence_metro}, ${d.residence_country}`; //`${d.residence_lat}-${d.residence_lon}`;
-                if(!allPoints[key]){
+
+                if (!allPoints[key]) {
                     points.push({
-                    "id": `res-${i}`,
-                    "svgPath": targetSVG,
-                    "title": `${d.residence_metro}, ${d.residence_country}`,
-                    "latitude": d.residence_lat,
-                    "longitude": d.residence_lon,
-                    "scale": 1
+                        "id": `res-${i}`,
+                        //"svgPath": targetSVG,
+                        "title": `${d.residence_metro}, ${d.residence_country}`,
+                        "latitude": d.residence_lat,
+                        "longitude": d.residence_lon,
+                        "scale": 1,
+                        "color": "orange",
+                        "stroke": d.is_office_same_city ? "green" : "orange",
+                        "strokeWidth": d.is_office_same_city ? 4 : 0,
+                        "radius": radiusScale(d.adjusted_ttp_usd),
+                        "height": heightScale(d.adjusted_ttp_usd)
                     });
                     allPoints[key] = true;
                 }
 
-                // imageSeries.data.push({
-                // "id": `off-${i}`,
-                // "svgPath": targetSVG,
-                // "title": d.office_metro,
-                // "latitude": d.office_lat,
-                // "longitude": d.office_lon,
-                // "scale": 1
-                // });
+                const key_office = `${d.office_metro}, ${d.office_country}`; //`${d.residence_lat}-${d.residence_lon}`;
+
+                if (!d.is_office_same_city && !allPoints[key_office]) {
+                    points.push({
+                        "id": `off-${i}`,
+                        //"svgPath": targetSVG,
+                        "title": `${d.office_metro}, ${d.office_country}`,
+                        "latitude": d.office_lat,
+                        "longitude": d.office_lon,
+                        "scale": 1,
+                        "color": "green",
+                        "stroke": d.is_office_same_city ? "green" : "orange",
+                        "strokeWidth": d.is_office_same_city ? 4 : 0,
+                        "radius": radiusScale(d.adjusted_ttp_usd),
+                        "height": heightScale(d.adjusted_ttp_usd)
+                    });
+                    allPoints[key_office] = true;
+                }
+
+                // add a connection from office to residence
+                const key_connection = key + key_office;
+                if (!allConnections[key_connection]) {
+                    allConnections[key_connection] = {
+                        count: 0,
+                        ttp_usd: 0
+                    }
+                }
+                Object.assign(allConnections[key_connection], d);
+                ++allConnections[key_connection].count;
+                allConnections[key_connection].ttp_usd += d.adjusted_ttp_usd;
             });
 
+            const lines = [];
+            Object.values(allConnections).forEach(c => {
+                if (!c.is_office_same_city) {
+                    lines.push({
+                        "count": c.count,
+                        "ttp_usd": c.ttp_usd,
+                        "avg_ttp": ttpScale(c.ttp_usd / c.count),
+                        "shortestDistance": Math.abs(c.office_lon - c.residence_lon) >= 180 ? false : true,
+                        "multiGeoLine": [
+                            [
+                                { "latitude": c.office_lat, "longitude": c.office_lon },
+                                { "latitude": c.residence_lat, "longitude": c.residence_lon }
+                            ]
+                        ]
+                    })
+                }
+            })
+
             imageSeries.data = points;
+            //lineSeries.data = lines;
 
-            console.log('imageSeries.data', imageSeries.data)
+            console.log('imageSeries.data', lines)
 
-            // imageSeries.data.unshift.apply(imageSeries.data, [{
-            //     "id": "london",
-            //     "svgPath": targetSVG,
-            //     "title": "London",
-            //     "latitude": 51.5002,
-            //     "longitude": -0.1262,
-            //     "scale": 1
-            // }, {
-            //     "svgPath": targetSVG,
-            //     "title": "Brussels",
-            //     "latitude": 50.8371,
-            //     "longitude": 4.3676,
-            //     "scale": 0.5
-            // }, {
-            //     "svgPath": targetSVG,
-            //     "title": "Prague",
-            //     "latitude": 50.0878,
-            //     "longitude": 14.4205,
-            //     "scale": 0.5
-            // }, {
-            //     "svgPath": targetSVG,
-            //     "title": "Athens",
-            //     "latitude": 37.9792,
-            //     "longitude": 23.7166,
-            //     "scale": 0.5
-            // }, {
-            //     "svgPath": targetSVG,
-            //     "title": "Reykjavik",
-            //     "latitude": 64.1353,
-            //     "longitude": -21.8952,
-            //     "scale": 0.5
-            // }, {
-            //     "svgPath": targetSVG,
-            //     "title": "Dublin",
-            //     "latitude": 53.3441,
-            //     "longitude": -6.2675,
-            //     "scale": 0.5
-            // }, {
-            //     "svgPath": targetSVG,
-            //     "title": "Oslo",
-            //     "latitude": 59.9138,
-            //     "longitude": 10.7387,
-            //     "scale": 0.5
-            // }, {
-            //     "svgPath": targetSVG,
-            //     "title": "Lisbon",
-            //     "latitude": 38.7072,
-            //     "longitude": -9.1355,
-            //     "scale": 0.5
-            // }, {
-            //     "svgPath": targetSVG,
-            //     "title": "Moscow",
-            //     "latitude": 55.7558,
-            //     "longitude": 37.6176,
-            //     "scale": 0.5
-            // }, {
-            //     "svgPath": targetSVG,
-            //     "title": "Belgrade",
-            //     "latitude": 44.8048,
-            //     "longitude": 20.4781,
-            //     "scale": 0.5
-            // }, {
-            //     "svgPath": targetSVG,
-            //     "title": "Bratislava",
-            //     "latitude": 48.2116,
-            //     "longitude": 17.1547,
-            //     "scale": 0.5
-            // }, {
-            //     "svgPath": targetSVG,
-            //     "title": "Ljubljana",
-            //     "latitude": 46.0514,
-            //     "longitude": 14.5060,
-            //     "scale": 0.5
-            // }, {
-            //     "svgPath": targetSVG,
-            //     "title": "Madrid",
-            //     "latitude": 40.4167,
-            //     "longitude": -3.7033,
-            //     "scale": 0.5
-            // }, {
-            //     "svgPath": targetSVG,
-            //     "title": "Stockholm",
-            //     "latitude": 59.3328,
-            //     "longitude": 18.0645,
-            //     "scale": 0.5
-            // }, {
-            //     "svgPath": targetSVG,
-            //     "title": "Bern",
-            //     "latitude": 46.9480,
-            //     "longitude": 7.4481,
-            //     "scale": 0.5
-            // }, {
-            //     "svgPath": targetSVG,
-            //     "title": "Kiev",
-            //     "latitude": 50.4422,
-            //     "longitude": 30.5367,
-            //     "scale": 0.5
-            // }, {
-            //     "svgPath": targetSVG,
-            //     "title": "Paris",
-            //     "latitude": 48.8567,
-            //     "longitude": 2.3510,
-            //     "scale": 0.5
-            // }, {
-            //     "svgPath": targetSVG,
-            //     "title": "New York",
-            //     "latitude": 40.43,
-            //     "longitude": -74,
-            //     "scale": 0.5
-            // }]);
- 
-            
             // Add lines
-            
+
             /* var lineSeries = chart.series.push(new am4maps.MapLineSeries());
             lineSeries.dataFields.multiGeoLine = "multiGeoLine";
 
