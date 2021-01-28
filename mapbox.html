@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8' />
+    <title>UXRC Salary Survey</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v2.0.1/mapbox-gl.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.5.0/d3.min.js"
+        integrity="sha512-0XfwGD1nxplHpehcSVI7lY+m/5L37PNHDt+DOc7aLFckwPXjnjeA1oeNbru7YeI4VLs9i+ADnnHEhP69C9CqTA=="
+        crossorigin="anonymous"></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v2.0.1/mapbox-gl.css' rel='stylesheet' />
+    <!-- Turf & Polyline -->
+    <script src="https://npmcdn.com/@turf/turf/turf.min.js"></script>
+    <script src=https://cdnjs.cloudflare.com/ajax/libs/mapbox-polyline/1.1.1/polyline.js></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id='map'></div>
+
+    <!-- Utility functions -->
+    <script>
+        // Get survey dataset
+        async function getDataset() {
+
+            return await d3.csv("./Salary Survey 2021 Responses - CLEAN - Salary Survey 2021.csv", (d) => {
+                const bIsOfficeSameCity = d["Office - Same City"] == "TRUE";
+                return {
+                    is_office_same_city: bIsOfficeSameCity,
+                    office_lat: bIsOfficeSameCity ? +d["Residence - Lat"] : +d["Office - Lat"],
+                    office_lon: bIsOfficeSameCity ? +d["Residence - Long"] : +d["Office - Long"],
+                    residence_lat: +d["Residence - Lat"],
+                    residence_lon: +d["Residence - Long"],
+                    residence_metro: d["Residence - Metro"],
+                    residence_country: d["Residence - Country"],
+                    lat: +d["Residence - Lat"],
+                    lon: +d["Residence - Long"],
+                    office_metro: d["Office - Metro"],
+                    office_country: d["Office - Country Clean"],
+                    adjusted_ttp_usd: Number(d["Adjusted TTP USD"].replace("$", "").replaceAll(",", ""))
+                }
+            });
+            console.log("oSurveyData", oSurveyData);
+        }
+
+        function getUniqueOfficeLocations(aData) {
+            const oOfficeLocationsByLatLon = {};
+            JSON.parse(JSON.stringify(aData)).forEach(d => {
+                if (d.office_lat && d.office_lon && !d.is_office_same_city) {
+                    oOfficeLocationsByLatLon[`${d.office_lat},${d.office_lon}`] = d;
+                    d.lat = d.office_lat;
+                    d.lon = d.office_lon;
+                }
+            });
+            return Object.values(oOfficeLocationsByLatLon);
+        }
+
+        function getGeoJSONDataset(aData) {
+
+            return {
+                "type": "FeatureCollection",
+                "features": aData.map(d => {
+                    return {
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "Point",
+                            "coordinates": [d.lon, d.lat]
+                        },
+                        "properties": d
+                    }
+                })
+            };
+
+        }
+
+    </script>
+
+    <!-- Mappbox code -->
+    <script>
+
+        mapboxgl.accessToken = 'pk.eyJ1IjoiaWFzaGlzaHNpbmdoIiwiYSI6ImNra2dweDA5aTE1czMydW1ucGxkYTdtY2sifQ.mbkBR2PjRtKrpAw59dvJ_g';
+        var map = new mapboxgl.Map({
+            container: 'map', // Specify the container ID
+            style: 'mapbox://styles/mapbox/dark-v10', // Specify which map style to use
+            zoom: 1.34,
+            center: [13.747157081573533, 7.254837457058102],
+        });
+
+        const {
+            projection,
+            lineDistance,
+            midpoint,
+            destination,
+            bearing,
+            lineArc,
+            distance
+        } = turf;
+
+        function drawArc(id, start, finish) {
+            let route = {
+                type: 'LineString',
+                coordinates: [
+                    [start.lon, start.lat],
+                    [finish.lon, finish.lat]
+                ]
+            };
+            route = projection.toWgs84(route);
+            const lineD = lineDistance(route, { units: 'kilometers' });
+            const mp = midpoint(route.coordinates[0], route.coordinates[1]);
+            const center = destination(
+                mp,
+                lineD,
+                bearing(route.coordinates[0], route.coordinates[1]) - 90
+            );
+            const lA = lineArc(
+                center,
+                distance(center, route.coordinates[0]),
+                bearing(center, route.coordinates[1]),
+                bearing(center, route.coordinates[0])
+            );
+            map.addLayer(
+                {
+                    id,
+                    type: 'line',
+                    source: {
+                        type: 'geojson',
+                        data: projection.toMercator(lA)
+                    },
+                    paint: {
+                        'line-width': 0.5,
+                        'line-color': '#FCA526'
+                    }
+                }
+            );
+        }
+
+        map.on('load', async function () {
+
+            const dataset = await getDataset();
+
+            // add participants data as a source to map
+            map.addSource('participants-source', {
+                type: 'geojson',
+                data: getGeoJSONDataset(dataset),
+                cluster: false,
+                // Max zoom to cluster points on
+                clusterMaxZoom: 13,
+                // // Radius of each cluster when clustering points (defaults to 50)
+                // clusterRadius: 50
+            });
+
+            // add office locations data as a source
+            map.addSource('office-source', {
+                type: 'geojson',
+                data: getGeoJSONDataset(getUniqueOfficeLocations(dataset))
+            });
+
+            // add office location layer
+            map.addLayer({
+                'id': 'office-layer',
+                'type': 'circle',
+                'source': 'office-source',
+                //'source-layer': 'sf2010',
+                'paint': {
+                    // make circles larger as the user zooms from z12 to z22
+                    'circle-radius': {
+                        'base': 5,
+                        'stops': [
+                            [12, 5],
+                            [22, 180]
+                        ]
+                    },
+                    // color circles by ethnicity, using a match expression
+                    // https://docs.mapbox.com/mapbox-gl-js/style-spec/#expressions-match
+                    'circle-color': "yellow",
+                    'circle-opacity': 0.75
+                }
+            });
+
+            // add participants layer
+            map.addLayer({
+                'id': 'participants-layer',
+                'type': 'circle',
+                'source': 'participants-source',
+                //'source-layer': 'sf2010',
+                'paint': {
+                    // make circles larger as the user zooms from z12 to z22
+                    'circle-radius': {
+                        'base': 6,
+                        'stops': [
+                            [12, 6],
+                            [22, 10]
+                        ]
+                    },
+                    // color circles by ethnicity, using a match expression
+                    // https://docs.mapbox.com/mapbox-gl-js/style-spec/#expressions-match
+                    //'circle-color': "orange",
+                    'circle-color': [
+                        'interpolate-hcl',
+                        ['linear'],
+                        ['number', ['get', 'adjusted_ttp_usd']],
+                        40000, '#2DC4B2',
+                        60000, '#3BB3C3',
+                        80000, '#669EC4',
+                        100000, '#8B88B6',
+                        140000, '#A2719B',
+                        180000, '#AA5E79'
+                    ],
+                    'circle-stroke-width': 1,
+                    'circle-stroke-color': [
+                        'case',
+                        ['boolean', ['get', 'is_office_same_city']],
+                        'yellow',
+                        'transparent'
+                    ],
+                }
+            });
+
+            // Add arcs from office to participants
+            // dataset.forEach((d,i) => {
+            //     if(!d.is_office_same_city){
+            //         drawArc(
+            //             `id-${i}`,
+            //             { 
+            //                 lat: d.office_lat, 
+            //                 lon: d.office_lon 
+            //             },
+            //             { 
+            //                 lat: d.residence_lat, 
+            //                 lon: d.residence_lon 
+            //             }
+            //         )
+            //     }
+            // })
+        })
+
+    </script>
+
+</body>
+
+</html>
