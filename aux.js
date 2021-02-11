@@ -139,4 +139,137 @@ function applyFiltersOnData(aFilters, aData) {
   return aFilteredData;
 }
 
-export { applyFiltersOnData };
+/**
+ * Parse salary value
+ * @param {string} s
+ */
+function format_salary(s) {
+  return Number(s?.replaceAll(",", "").replaceAll("$", "")) || 0;
+}
+
+/**
+ * Group data based on given primary and secondary dimensions
+ * @param {Array} aData
+ * @param {String} sPrimaryDimension
+ * @param {String} sSecondaryDimension
+ */
+function getGroupedData(aData, sPrimaryDimension, sSecondaryDimension) {
+  return d3.groups(
+    aData.filter((d) =>
+      sPrimaryDimension == "International" ? d.international : !d.international
+    ),
+    (d) => d.residence,
+    (d) => d[sSecondaryDimension]
+  );
+}
+
+/**
+ * Calculate quantile values on the dataset
+ * @param {Array} aGroupedData
+ * @param {String} sCalculateMetric
+ * @param {Number} fCurrencyFactor
+ * @param {Boolean} bAdjustCostOfLiving
+ */
+function getQuantileData(
+  aGroupedData,
+  sCalculateMetric,
+  fCurrencyFactor,
+  bAdjustCostOfLiving = false
+) {
+  aGroupedData.forEach((pd) => {
+    
+    const aPDLevelSalary = [];
+    const quantile = d3.scaleQuantile().range(['A', 'B', 'C', 'D', 'E']);
+
+    pd[1].forEach((sd) => {
+      const sFieldName = bAdjustCostOfLiving
+        ? `adjusted_${sCalculateMetric}`
+        : sCalculateMetric;
+      const aSalary = sd[1].map((d) => d[sFieldName] / Number(fCurrencyFactor));
+      
+      // secondary dimension level
+      quantile.domain(aSalary);
+
+      // is already calculated before?
+      if (sd[2]) {
+        // replace existing values
+        sd[2] = quantile.quantiles();
+        sd[3] = d3.median(aSalary);
+      } else {
+        // add calculated values
+        sd.push(quantile.quantiles());
+        sd.push(d3.median(aSalary));
+      }
+
+      // push to primary dimension level for calculation
+      aPDLevelSalary.push.apply(aPDLevelSalary, aSalary);
+    });
+
+    // primary dimension level details
+    quantile.domain(aPDLevelSalary);
+    
+    // salary quantiles
+    pd[2] = quantile.quantiles();
+    // median salary
+    pd[3] = d3.median(aPDLevelSalary);
+    // number of records
+    pd[4] = aPDLevelSalary.length;
+
+  });
+
+  return aGroupedData;
+}
+
+async function getDataset() {
+  return (await fetch("./parsedData.json")).json()
+}
+
+const CURRENCY_DATA = d3.csvParse(
+  `Code,Name,Factor
+AED,United Arab Emirates Dirham,0.27000
+AUD,Australian Dollar,0.77000
+CAD,Canadian Dollar,0.78000
+BRL,Brazilian Real,0.19000
+ARS,Argentinian Peso,0.01200
+CHF,Swiss Franc,1.13000
+CLP,Chilean Peso,0.00140
+CZK,Czech Koruna,0.04700
+GBP,British Pound,1.36000
+COP,Colombian Peso,0.00029
+DKK,Danish Krone,0.16000
+EGP,Egyptian Pound,0.06400
+EUR,European Dollar,1.23000
+HUF,Hungarian Forint,0.00340
+IDR,Indonesian Rupiah,0.00007
+INR,Indian Rupee,0.01400
+ISK,Icelandic Króna,0.00780
+JPY,Japanese Yen,0.00970
+KRW,South Korean Won,0.00092
+MXN,Mexican Peso,0.05000
+NGN,Nigerian Naira,0.00260
+ILS,Israeli New Shekel,0.31000
+NOK,Norwegian Krone,0.12000
+NTD,New Taiwan Dollar,0.03600
+NZD,New Zealand Dollar,0.72000
+PEN,Peruvian Sol,0.27000
+PHP,Philippine Peso,0.02100
+ZAR,South African Rand,0.06800
+RON,Romanian Leu,0.25000
+RUB,Russian Ruble,0.01300
+SEK,Swedish Krona,0.12000
+SGD,Singapore Dollar,0.76000
+TRY,Turkish Lira,0.13000
+USD,United States Dollar,1.00000
+VND,Vietnamese Dong,0.00004
+`,
+  d3.autoType
+);
+
+export {
+  getDataset,
+  applyFiltersOnData,
+  format_salary,
+  getGroupedData,
+  getQuantileData,
+  CURRENCY_DATA,
+};
