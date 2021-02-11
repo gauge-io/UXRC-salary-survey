@@ -1,0 +1,43 @@
+#compensation-graph {
+    > ul {
+        margin: 0;
+        list-style: none;
+    }
+}
+
+.cg-group {
+
+}
+
+.cg-li {
+    > * {
+        box-sizing: border-box;
+    }
+
+    margin: 0.5rem 0;
+
+    .left-content,
+    .right-content {
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    .left-content {
+        text-align: left;
+        width: 29.5%;
+        label {
+            display: block;
+
+            &.lbl-title {
+
+            }
+            &.lbl-subtitle {
+                font-size: small;
+                color:gray;
+            }
+        }
+    }
+    .right-content {
+        width: 70%;
+    }
+}

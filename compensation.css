@@ -1,0 +1,24 @@
+#compensation-graph > ul {
+  margin: 0;
+  list-style: none; }
+
+.cg-li {
+  margin: 0.5rem 0; }
+  .cg-li > * {
+    box-sizing: border-box; }
+  .cg-li .left-content,
+  .cg-li .right-content {
+    display: inline-block;
+    vertical-align: middle; }
+  .cg-li .left-content {
+    text-align: left;
+    width: 29.5%; }
+    .cg-li .left-content label {
+      display: block; }
+      .cg-li .left-content label.lbl-subtitle {
+        font-size: small;
+        color: gray; }
+  .cg-li .right-content {
+    width: 70%; }
+
+/*# sourceMappingURL=compensation.css.map */

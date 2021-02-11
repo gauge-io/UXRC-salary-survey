@@ -195,10 +195,13 @@ function getQuantileData(
         // replace existing values
         sd[2] = quantile.quantiles();
         sd[3] = d3.median(aSalary);
+        // number of records
+        sd[4] = aSalary.length;
       } else {
         // add calculated values
         sd.push(quantile.quantiles());
         sd.push(d3.median(aSalary));
+        sd.push(aSalary.length);
       }
 
       // push to primary dimension level for calculation
@@ -207,7 +210,7 @@ function getQuantileData(
 
     // primary dimension level details
     quantile.domain(aPDLevelSalary);
-    
+
     // salary quantiles
     pd[2] = quantile.quantiles();
     // median salary
