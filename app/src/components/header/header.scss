@@ -2,6 +2,7 @@ header.header{
 	// layout
 	.row{
 		justify-content: space-between;
+		border-bottom: 1px solid $black;
 		.col{
 			justify-content: center;
 		}
@@ -31,6 +32,9 @@ header.header{
 			margin-right: -10px;;
 			li{
 				font-size: 24px;
+				&:hover{
+					color: $gold;
+				}
 				a{
 					padding: 0 10px;
 				}
