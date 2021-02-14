@@ -1,0 +1,36 @@
+include ../../components/components.pug
+
+block variables
+
+doctype html
+html(lang="en-En")
+	head
+		//- Global site tag (gtag.js) - Google Analytics
+		//- script( async src="https://www.googletagmanager.com/gtag/js?id=UA-124172918-2" )
+		//- script.
+		//- 	window.dataLayer = window.dataLayer || [];
+		//- 	function gtag(){dataLayer.push(arguments);}
+		//- 	gtag('js', new Date());
+		//- 	gtag('config', 'UA-173939474-1');
+
+		meta(charset="utf-8")
+		title #{title}
+		<!--[if IE]>
+		meta(http-equiv='X-UA-Compatible', content="IE = edge")
+		<![endif]-->
+		meta(name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no")
+		meta(name="keywords" content="")
+		//- link(rel="stylesheet" href="./css/vendors.frontend.min.css")
+		link(rel="stylesheet" href="./css/styles.frontend.min.css")
+		link(rel="shortcut icon" href="./static/favicon.ico" type="image/x-icon")
+
+	body( data-barba="wrapper" )
+		include ../../components/header/header
+		main
+			block content
+
+		footer
+
+		script( src="./js/vendors.frontend.min.js" )
+		script( src="./js/app.frontend.min.js" )
+		block script

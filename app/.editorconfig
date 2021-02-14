@@ -1,0 +1,13 @@
+root = true
+
+[*]
+max_line_length = off
+charset = utf-8
+indent_style = tab
+indent_size = 2
+
+[*.js]
+trim_trailing_whitespace = true
+
+[*.sass]
+trim_trailing_whitespace = true

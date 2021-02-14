@@ -1,0 +1,103 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap');
+
+// @font-face{
+// 	font-family: 'Montserrat';
+// 	src: url('../fonts/Montserrat/Montserrat-Regular.eot');
+//   src: url('../fonts/Montserrat/Montserrat-Regular.eot?#iefix') format('embedded-opentype'),
+//        url('../fonts/Montserrat/Montserrat-Regular.svg#Montserrat-Regular') format('svg'),
+//        url('../fonts/Montserrat/Montserrat-Regular.ttf') format('truetype'),
+//        url('../fonts/Montserrat/Montserrat-Regular.woff') format('woff'),
+//        url('../fonts/Montserrat/Montserrat-Regular.woff2') format('woff2');
+//   font-weight: 400;
+//   font-style: normal;
+// }
+
+
+body{
+	font-family: 'IBM Plex Sans', sans-serif;
+	font-weight: 400;
+	color: #333333;
+	font-size: 14px;
+}
+
+p{
+	font-family: inherit;
+	font-size: inherit;
+	color: inherit;
+	padding: 0;
+	margin: 0;
+	line-height: 1.57;
+	margin-bottom: 20px;
+	// font-weight: 400 // normal
+}
+
+h1,h2,h3,h4,h5,h6{
+	font-family: inherit;
+	color: inherit;
+	font-weight: 400;
+	margin: 0;
+	padding: 0;
+	margin-bottom: 20px;
+	line-height: 1.57;
+	font-weight: 500;
+}
+
+h1,h2,h3,h4,h5,h6,a,p,span{
+	transition: 0.4s color linear 0s;
+}
+
+p > span{
+	transition: none;
+	color: inherit;
+}
+a > span{
+	transition: none;
+	color: inherit;
+}
+
+p > a{
+	color: #d38b10;
+	&:hover{
+		text-decoration: underline;
+	}
+}
+
+h1{
+}
+
+h2{
+}
+
+h3{
+}
+
+h4{
+}
+
+// MEDIA
+@media( min-width: 768px){
+	font-size: 14px;
+	h1{
+	}
+	h2{
+		font-size: 28px;
+	}
+	h3{
+		font-size: 18px;
+	}
+	h4{
+	}
+}
+@media ( min-width: 992px ){
+	h1{
+	}
+	h2{
+	}
+	h3{
+	}
+	h4{
+	}
+}
+@media ( min-width: 1200px ){
+}

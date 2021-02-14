@@ -1,0 +1,22 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 12
+    
+    commands:
+      - echo INSTALL started on `date`
+      - npm install gulp -g
+      - npm i
+  build:
+    commands:
+      - echo Build started on `date`
+      - gulp build
+  post_build:
+    commands:
+      - echo Build completed on `date`
+artifacts:
+  files:
+    - '**/*'
+  base-directory: 'build'
