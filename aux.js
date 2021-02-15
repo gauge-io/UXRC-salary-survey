@@ -218,6 +218,8 @@ function getQuantileData(
     // number of records
     pd[4] = aPDLevelSalary.length;
 
+    pd.isPrimary = true;
+
   });
 
   return aGroupedData;
