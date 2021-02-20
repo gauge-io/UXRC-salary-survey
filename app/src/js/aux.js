@@ -10,14 +10,21 @@
  *
  * @param {*} aData
  */
-function renderCompensation(elTargetDom, aData, maxQuantBoundary, bIsSecondLevel = false) {
+function renderCompensation(elTargetDom, aData, maxQuantBoundary, bIsSecondLevel = false, iGraphWidth = 400) {
   const elWrapper = document.createElement("div");
   const elUl = document.createElement("ul");
   elWrapper.appendChild(elUl);
+  elWrapper.classList.add(bIsSecondLevel ? "cg-li__subcontent" : "cg-li__primarycontent");
 
-  if (bIsSecondLevel) {
-    elWrapper.classList.add("cg-li__subcontent");
+  // cleanup
+  if (!bIsSecondLevel) {
+    elTargetDom.innerHTML = null;
   }
+  elTargetDom.appendChild(elWrapper);
+
+  const graphWidth = iGraphWidth || Math.floor(0.7 * elWrapper.getBoundingClientRect().width);
+
+  console.log(graphWidth);
 
   const ul = d3.select(elUl);
   ul.classed("cg-group", true);
@@ -28,17 +35,18 @@ function renderCompensation(elTargetDom, aData, maxQuantBoundary, bIsSecondLevel
     .join("li")
     .classed("cg-li", true)
     .html(
-      (d) => `<div">
-
+      (d) => `
+        <div>
             <div class="left-content">
                 <label class="lbl-title">${d[0]}</label>
                 <label class="lbl-subtitle">${d[4]} record${
-        d[4] > 1 ? "s" : ""
-      }</label>
+                  d[4] > 1 ? "s" : ""
+                }</label>
             </div>
             <div class="right-content">
-                ${compensationChart([...d[2], d[3]], maxQuantBoundary, 600, 35)}
+                ${compensationChart([...d[2], d[3]], maxQuantBoundary, graphWidth, 35)}
             </div>
+        </div>
         `
     );
   
@@ -50,7 +58,7 @@ function renderCompensation(elTargetDom, aData, maxQuantBoundary, bIsSecondLevel
 
       if (!d.expandRendered && d.isPrimary) {
         d.expandRendered = true;
-        renderCompensation(event.currentTarget, d[1], maxQuantBoundary, true);
+        renderCompensation(event.currentTarget, d[1], maxQuantBoundary, true, graphWidth);
       }
 
       // toggle class
@@ -58,8 +66,6 @@ function renderCompensation(elTargetDom, aData, maxQuantBoundary, bIsSecondLevel
     });
 
   }
-
-  elTargetDom.appendChild(elWrapper);
 }
 
 /**
@@ -333,6 +339,8 @@ function getQuantileData(
       aPDLevelSalary.push.apply(aPDLevelSalary, aSalary);
     });
 
+    pd[1].sort((a, b) => d3.ascending(a[3], b[3]));
+
     // primary dimension level details
     quantile.domain(aPDLevelSalary);
 
@@ -347,11 +355,33 @@ function getQuantileData(
 
   });
 
-  return aGroupedData;
+  return aGroupedData.sort((a, b) => d3.descending(a[4], b[4]));
 }
 
 async function getDataset() {
   return (await fetch("datasets/parsedData.json")).json()
+}
+
+/**
+ * Get values of all the available filters on the page
+ */
+function getFilterValues() {
+  const oFilters = {};
+
+  d3.selectAll(".fi")
+    .each(function () {
+      
+      let el;
+
+      if (el = d3.select(this).select("select").node()) {
+        oFilters[el.getAttribute("data-metric")] = el.value;
+      }
+      if (el = d3.select(this).select("input[type=checkbox]").node()) {
+        oFilters[el.getAttribute("data-metric")] = el.checked;
+      }
+    });
+  
+  return oFilters;
 }
 
 const CURRENCY_DATA = d3.csvParse(
@@ -395,6 +425,19 @@ VND,Vietnamese Dong,0.00004
   d3.autoType
 );
 
+
+function renderCurrencyFilter(elSelector) {
+  const selCurrency = d3.select(elSelector)
+    .selectAll("option")
+    .data(CURRENCY_DATA)
+      .join("option")
+      .attr("value", d => d.Factor)
+    .html(d => `${d.Code} – ${d.Name}`);
+  
+  selCurrency.filter(d => d.Code == "USD")
+    .attr("selected", true);
+}
+
 export {
   getDataset,
   applyFiltersOnData,
@@ -404,4 +447,6 @@ export {
   CURRENCY_DATA,
   renderCompensation,
   compensationChart,
+  getFilterValues,
+  renderCurrencyFilter,
 };

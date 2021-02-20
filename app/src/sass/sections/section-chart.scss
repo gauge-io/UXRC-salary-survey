@@ -1,4 +1,26 @@
 section.section-chart {
+	display: flex;
+	flex-wrap: nowrap;
+	justify-content: space-between;
+	align-items: flex-start;
+	padding: 0.5rem 0;
+
+	.section-chart {
+		
+		&__content,
+		&__filter {
+		}
+
+		&__content {
+			flex-grow: 1;
+		}
+
+		&__filter {
+			flex-shrink: 1;
+			padding-left: 1rem;
+		}
+	}
+
 	#compensation-graph {
 		> ul {
 			margin: 0;
@@ -12,12 +34,16 @@ section.section-chart {
 		.cg-li {
 			user-select: none;
 
-			margin: 0.5rem 0;
-			padding: 0 0.75rem;
+			margin: 0 0 0.5rem 0;
+			padding: 0.5rem;
 			cursor: pointer;
 
 			&:nth-child(odd) {
 				background-color: $table-row-gray;
+			}
+
+			> div {
+				display: flex;
 			}
 
 			.left-content,
@@ -29,6 +55,7 @@ section.section-chart {
 			.left-content {
 				text-align: left;
 				width: 29.5%;
+				flex-grow: 0;
 				label {
 					display: block;
 					user-select: none;
@@ -39,13 +66,15 @@ section.section-chart {
 					&.lbl-subtitle {
 						font-size: small;
 						color: gray;
+						margin-top: 0.25rem;
 					}
 					cursor: pointer;
 				}
 				cursor: pointer;
 			}
 			.right-content {
-				width: 70%;
+				// width: 70%;
+				flex-grow: 1;
 			}
 
 			&__primary {
@@ -85,16 +114,58 @@ section.section-chart {
 		}
 
 		.cg-li__subcontent {
+			margin-top: 0.5rem;
 			.cg-group {
 				padding: 0;
-				margin: 0;
+				margin: 0rem;
+				width: 100%;
 
 				.cg-li {
-					padding: 0;
+					padding: 0.5rem 0;
+					margin: 0;
 					.left-content {
 						padding-left: 0.75rem;
 					}
 				}
+			}
+		}
+	}
+}
+
+.filter {
+
+	&__section {
+		background-color: $bg-gray;
+		margin-bottom: 1rem;
+		padding: 0.85rem 1rem;
+		border-radius: 6px;
+	}
+
+	.fi {
+		margin-bottom: 0.85rem;
+
+		label {
+			display: block;
+			margin: 0.5rem 0;
+		}
+		.single-dropdown {
+			select {
+				width: 100%;
+			}
+		}
+		.checkbox {
+
+		}
+
+		&--checkbox {
+			label {
+				position: relative;
+				padding-left: 1.5rem;
+			}
+			.checkbox {
+				position: absolute;
+				left: 0;
+				top: 0;
 			}
 		}
 	}

@@ -22,4 +22,44 @@ block content
 								li Boundaries of quintiles
 
 				section.section.section-chart
-					div#compensation-graph
+					#compensation-graph.section-chart__content 
+					#filter.section-chart__filter.filter
+						.filter__section
+							.fi.fi--single-dropdown
+								label Calculate 
+								.single-dropdown 
+									select(data-metric="calculate")
+										option(value="base_usd") Base Salary Only 
+										option(value="total_compensation") Total Compensation  
+							.fi.fi--single-dropdown
+								label Currency
+								.single-dropdown 
+									select(data-metric="currency")
+							.fi.fi--checkbox
+								label Adjust for Cost of Living 
+									.checkbox 
+										input(type="checkbox" data-metric="adjust")
+										
+						.filter__section
+							.fi.fi--single-dropdown
+								label Primary 
+								.single-dropdown 
+									select(data-metric="primary")
+										option(value="United States") Metro Areas (US Only)
+										option(value="International") International
+							.fi.fi--single-dropdown
+								label Secondary 
+								.single-dropdown 
+									select(data-metric="secondary")
+										option(value="Education") Education
+										option(value="Experience") Experience
+										option(value="Employment Status") Employment Status
+										option(value="Company Type") Company Type
+										option(value="Industry") Industry
+										option(value="Team Size") Team Size
+										option(value="Gender") Gender
+							.fi.fi--checkbox
+								label Truncate results
+									.checkbox 
+										input(type="checkbox" data-metric="truncate-results")
+							
