@@ -9,10 +9,12 @@ section.section-chart {
 		
 		&__content,
 		&__filter {
+			position: relative;
 		}
 
 		&__content {
 			flex-grow: 1;
+			align-self: stretch;
 		}
 
 		&__filter {
@@ -169,4 +171,28 @@ section.section-chart {
 			}
 		}
 	}
+}
+
+.section-map {
+	flex-grow: 1;
+	align-self: stretch;
+	position: relative;
+
+	#commutation-map {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		width: 100%;
+	}
+
+	#filter {
+		position: absolute;
+		right: 1rem;
+		top: 1rem;
+
+		.filter__section {
+			background-color: rgba(25,26,26, 0.5);
+		}
+	}
+
 }

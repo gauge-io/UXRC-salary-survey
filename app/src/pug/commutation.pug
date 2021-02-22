@@ -23,125 +23,126 @@ block content
 								li Employer Count
 
 				section.section.section-chart
-					#commutation-map.section-chart__content 
-					#filter.section-chart__filter.filter.filter--dark
-						.filter__section
-							.fi.fi--single-dropdown
-								label Calculate 
-								.single-dropdown 
-									select(data-metric="calculate")
-										option(value="base_usd") Base Salary Only 
-										option(value="total_compensation") Total Compensation  
-							.fi.fi--single-dropdown
-								label Currency
-								.single-dropdown 
-									select(data-metric="currency")
-										
-						.filter__section
-							.fi.fi--single-dropdown
-								label Commute 
-								.single-dropdown 
-									select(data-metric="commute")
-										option(value="show") Show
-										option(value="hide") Hide
-							.fi.fi--single-dropdown
-								label Colorization 
-								.single-dropdown 
-									select(data-metric="colorization")
-										option(value="None") None
-										option(value="Education") Education
-										option(value="Experience") Experience
-										option(value="Employment Status") Employment Status
-										option(value="Company Type") Company Type
-										option(value="Industry") Industry
-										option(value="Team Size") Team Size
-										option(value="Gender") Gender
-						
-						.filter__section
-							.fi.fi--single-dropdown
-								label Employment Status 
-								.single-dropdown 
-									select(data-metric="Employment Status")
-										option(value="all") All
-										option(value="Employed - Contractor") Employed - Contractor
-										option(value="Employed - Full time") Employed - Full time
-										option(value="Employed - Intern / Co-Op") Employed - Intern / Co-Op
-										option(value="Employed - Part time") Employed - Part time
-										option(value="Recent Graduate") Recent Graduate
-										option(value="Self-Employed / Freelancer") Self-Employed / Freelancer
-										option(value="Student - currently enrolled") Student - currently enrolled
-										option(value="Unemployed") Unemployed
-							.fi.fi--single-dropdown
-								label Experience 
-								.single-dropdown 
-									select(data-metric="Experience")
-										option(value="None") All
-										option(value="Between 3 and 6 years") Between 3 and 6 years
-										option(value="Between 1 and 3 years") Between 1 and 3 years
-										option(value="Less than 1 year") Less than 1 year
-										option(value="More than 10 years") More than 10 years
-										option(value="Between 6 and 10 years") Between 6 and 10 years
-
-						.filter__section
-							.fi.fi--single-dropdown
-								label Industry
-								.single-dropdown 
-									select(data-metric="Industry")
-										option(value="all") All
-										option(value="Administrative & Support Services") Administrative & Support Services
-										option(value="Advertising") Advertising
-										option(value="Agriculture") Agriculture
-										option(value="Arts, Entertainment, and Recreation") Arts, Entertainment, and Recreation
-										option(value="Biotechnology") Biotechnology
-										option(value="Civic & Social Assistance") Civic & Social Assistance
-										option(value="Education") Education
-										option(value="Finance & Insurance") Finance & Insurance
-										option(value="Gambing") Gambing
-										option(value="Healthcare & Wellness") Healthcare & Wellness
-										option(value="Healthcare & Wellness and Wellness") Healthcare & Wellness and Wellness
-										option(value="Legal") Legal
-										option(value="Leisure & Hospitality") Leisure & Hospitality
-										option(value="Liquor") Liquor
-										option(value="Manufacturing") Manufacturing
-										option(value="Media") Media
-										option(value="Mining") Mining
-										option(value="Packaging and Shipping") Packaging and Shipping
-										option(value="Pharmaceuticals") Pharmaceuticals
-										option(value="Professional & Business Services") Professional & Business Services
-										option(value="Real Estate") Real Estate
-										option(value="Retail") Retail
-										option(value="Software") Software
-										option(value="Telecommunications") Telecommunications
-										option(value="Transit") Transit
-										option(value="Travel") Travel
-										option(value="Unknown") Unknown
-										option(value="Utilities & Public Services") Utilities & Public Services
+					.section-map
+						#commutation-map
+						#filter.section-chart__filter.filter.filter--dark
+							.filter__section
+								.fi.fi--single-dropdown
+									label Calculate 
+									.single-dropdown 
+										select(data-metric="calculate")
+											option(value="base_usd") Base Salary Only 
+											option(value="total_compensation") Total Compensation  
+								.fi.fi--single-dropdown
+									label Currency
+									.single-dropdown 
+										select(data-metric="currency")
+											
+							.filter__section
+								.fi.fi--single-dropdown
+									label Commute 
+									.single-dropdown 
+										select(data-metric="commute")
+											option(value="visible") Show
+											option(value="none") Hide
+								.fi.fi--single-dropdown
+									label Colorization 
+									.single-dropdown 
+										select(data-metric="colorization")
+											option(value="None") None
+											option(value="Education") Education
+											option(value="Experience") Experience
+											option(value="Employment Status") Employment Status
+											option(value="Company Type") Company Type
+											option(value="Industry") Industry
+											option(value="Team Size") Team Size
+											option(value="Gender") Gender
 							
-							.fi.fi--single-dropdown
-								label Company Type 
-								.single-dropdown 
-									select(data-metric="Company Type")
-										option(value="all") All
-										option(value="Agency") Agency
-										option(value="Education") Education
-										option(value="Government") Government
-										option(value="Independent / Freelancer") Independent / Freelancer
-										option(value="Large Enterprise (201+)") Large Enterprise (201+)
-										option(value="Medium-Sized Business (50-200)") Medium-Sized Business (50-200)
-										option(value="Non-Profit") Non-Profit
-										option(value="Small Business (<50)") Small Business (<50)
-										option(value="Unemployed") Unemployed
-										option(value="Unknown") Unknown
-																	
-							.fi.fi--single-dropdown
-								label Company Size
-								.single-dropdown 
-									select(data-metric="Team Size")
-										option(value="None") All
-										option(value="1") 1
-										option(value="2 to 4") 2 to 4
-										option(value="5 to 9") 5 to 9
-										option(value="10 to 14") 10 to 14
-										option(value="15+") 15+
-										
+							.filter__section
+								.fi.fi--single-dropdown
+									label Employment Status 
+									.single-dropdown 
+										select(data-metric="Employment Status")
+											option(value="All") All
+											option(value="Employed - Contractor") Employed - Contractor
+											option(value="Employed - Full time") Employed - Full time
+											option(value="Employed - Intern / Co-Op") Employed - Intern / Co-Op
+											option(value="Employed - Part time") Employed - Part time
+											option(value="Recent Graduate") Recent Graduate
+											option(value="Self-Employed / Freelancer") Self-Employed / Freelancer
+											option(value="Student - currently enrolled") Student - currently enrolled
+											option(value="Unemployed") Unemployed
+								.fi.fi--single-dropdown
+									label Experience 
+									.single-dropdown 
+										select(data-metric="Experience")
+											option(value="All") All
+											option(value="Between 3 and 6 years") Between 3 and 6 years
+											option(value="Between 1 and 3 years") Between 1 and 3 years
+											option(value="Less than 1 year") Less than 1 year
+											option(value="More than 10 years") More than 10 years
+											option(value="Between 6 and 10 years") Between 6 and 10 years
+
+							.filter__section
+								.fi.fi--single-dropdown
+									label Industry
+									.single-dropdown 
+										select(data-metric="Industry")
+											option(value="All") All
+											option(value="Administrative & Support Services") Administrative & Support Services
+											option(value="Advertising") Advertising
+											option(value="Agriculture") Agriculture
+											option(value="Arts, Entertainment, and Recreation") Arts, Entertainment, and Recreation
+											option(value="Biotechnology") Biotechnology
+											option(value="Civic & Social Assistance") Civic & Social Assistance
+											option(value="Education") Education
+											option(value="Finance & Insurance") Finance & Insurance
+											option(value="Gambing") Gambing
+											option(value="Healthcare & Wellness") Healthcare & Wellness
+											option(value="Healthcare & Wellness and Wellness") Healthcare & Wellness and Wellness
+											option(value="Legal") Legal
+											option(value="Leisure & Hospitality") Leisure & Hospitality
+											option(value="Liquor") Liquor
+											option(value="Manufacturing") Manufacturing
+											option(value="Media") Media
+											option(value="Mining") Mining
+											option(value="Packaging and Shipping") Packaging and Shipping
+											option(value="Pharmaceuticals") Pharmaceuticals
+											option(value="Professional & Business Services") Professional & Business Services
+											option(value="Real Estate") Real Estate
+											option(value="Retail") Retail
+											option(value="Software") Software
+											option(value="Telecommunications") Telecommunications
+											option(value="Transit") Transit
+											option(value="Travel") Travel
+											option(value="Unknown") Unknown
+											option(value="Utilities & Public Services") Utilities & Public Services
+								
+								.fi.fi--single-dropdown
+									label Company Type 
+									.single-dropdown 
+										select(data-metric="Company Type")
+											option(value="All") All
+											option(value="Agency") Agency
+											option(value="Education") Education
+											option(value="Government") Government
+											option(value="Independent / Freelancer") Independent / Freelancer
+											option(value="Large Enterprise (201+)") Large Enterprise (201+)
+											option(value="Medium-Sized Business (50-200)") Medium-Sized Business (50-200)
+											option(value="Non-Profit") Non-Profit
+											option(value="Small Business (<50)") Small Business (<50)
+											option(value="Unemployed") Unemployed
+											option(value="Unknown") Unknown
+																		
+								.fi.fi--single-dropdown
+									label Company Size
+									.single-dropdown 
+										select(data-metric="Team Size")
+											option(value="All") All
+											option(value="1") 1
+											option(value="2 to 4") 2 to 4
+											option(value="5 to 9") 5 to 9
+											option(value="10 to 14") 10 to 14
+											option(value="15+") 15+
+											
 							
