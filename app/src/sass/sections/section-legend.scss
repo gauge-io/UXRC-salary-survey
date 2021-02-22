@@ -1,5 +1,11 @@
 section.section-legend{
 	padding: 50px 0;
+	border-top: 1px solid $black;
+	border-bottom: 1px solid $black;
+	display: none;
+	&.isVisible{
+		display: block;
+	}
 	// layout
 	.row{
 		.col{

@@ -1,10 +1,13 @@
 header.header{
+
 	// layout
 	.row{
 		justify-content: space-between;
-		border-bottom: 1px solid $black;
+		padding: 10px 0;
 		.col{
 			justify-content: center;
+			align-items: center;
+			flex-direction: row;
 		}
 	}
 
@@ -28,6 +31,7 @@ header.header{
 	}
 
 	nav{
+		margin-right: 40px;
 		ul.menu{
 			display: flex;
 			margin-left: -10px;
@@ -35,7 +39,7 @@ header.header{
 			li{
 				font-size: 18px;
 				position: relative;
-				padding: 0 10px;
+				padding: 0 20px;
 				&:hover{
 					color: $gold;
 				}

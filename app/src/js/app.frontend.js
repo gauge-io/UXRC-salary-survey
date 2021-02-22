@@ -37,6 +37,10 @@ class App {
 		const dispatch = this.dispatch;
 		const app = this;
 
+		const setLegendIsVisible = () => {
+			document.querySelector( '.section-legend' ).classList.toggle( 'isVisible' );
+		};
+
 		barba.init({
 			debug: true,
 			views: [
@@ -156,14 +160,22 @@ class App {
 					name: "page-transition",
 					once(data) {
 						// console.log( 'SPA.js -> first load', data.next.container.dataset.barbaNamespace );
+						document.querySelector( '#toggle-legend' ).addEventListener( 'click', setLegendIsVisible );
 					},
 
 					leave(data) {
 						document.querySelectorAll( 'ul.menu li').forEach( item => item.classList.remove( 'active') );
+
+						document.querySelector( '#toggle-legend' ).removeEventListener( 'click', setLegendIsVisible );
+						console.log( 'leave ');
 					},
-					afterLeave(data) {},
+					afterLeave(data) {
+
+					},
 					enter(data) {
 						// console.log( 'barba: enter:', data.next.container.dataset.barbaNamespace );
+						console.log( 'enter ');
+						document.querySelector( '#toggle-legend' ).addEventListener( 'click', setLegendIsVisible );
 					},
 					afterEnter(data) {},
 					after(data) {},
