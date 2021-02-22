@@ -587,7 +587,7 @@ export {
 	getFilterValues,
 	getFilters,
   renderCurrencyFilter,
-  
+
   // Map utils
   addMapStyleProperties,
   getGeoJSONArcDataset,

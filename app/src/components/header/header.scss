@@ -16,9 +16,11 @@ header.header{
 	.logo{
 		display: flex;
 		align-items: center;
+		margin-right: 20px;
 		.logo-text{
 			display: flex;
 			flex-direction: column;
+			margin-left: 10px;
 			span:nth-child(2){
 				color: $gold;
 			}
@@ -31,7 +33,7 @@ header.header{
 			margin-left: -10px;
 			margin-right: -10px;;
 			li{
-				font-size: 24px;
+				font-size: 18px;
 				&:hover{
 					color: $gold;
 				}

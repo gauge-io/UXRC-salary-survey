@@ -12,14 +12,12 @@ block content
 					.row
 						.col
 							h3 Summary
-							p TODO - Commutation Summary by Nick.
-
+							p Roughly a third of respondents to the Salary Survey identified with not working in the same city as their employer. In these transient times, different cities are becoming hubs of commuted UXR employment, both remote and locally. The trend towards distributed work shows no sign of abating any time soon.
 						.col
 							h3 Legend
 							ul
-								li Commuter count
 								li Compensation amount
-								li Respondent count 
+								li Respondent count
 								li Employer Count
 
 				section.section.section-chart
@@ -28,26 +26,26 @@ block content
 						#filter.section-chart__filter.filter.filter--dark
 							.filter__section
 								.fi.fi--single-dropdown
-									label Calculate 
-									.single-dropdown 
+									label Calculate
+									.single-dropdown
 										select(data-metric="calculate")
-											option(value="base_usd") Base Salary Only 
-											option(value="total_compensation") Total Compensation  
+											option(value="base_usd") Base Salary Only
+											option(value="total_compensation") Total Compensation
 								.fi.fi--single-dropdown
 									label Currency
-									.single-dropdown 
+									.single-dropdown
 										select(data-metric="currency")
-											
+
 							.filter__section
 								.fi.fi--single-dropdown
-									label Commute 
-									.single-dropdown 
+									label Commute
+									.single-dropdown
 										select(data-metric="commute")
 											option(value="visible") Show
 											option(value="none") Hide
 								.fi.fi--single-dropdown
-									label Colorization 
-									.single-dropdown 
+									label Colorization
+									.single-dropdown
 										select(data-metric="colorization")
 											option(value="None") None
 											option(value="Education") Education
@@ -57,11 +55,11 @@ block content
 											option(value="Industry") Industry
 											option(value="Team Size") Team Size
 											option(value="Gender") Gender
-							
+
 							.filter__section
 								.fi.fi--single-dropdown
-									label Employment Status 
-									.single-dropdown 
+									label Employment Status
+									.single-dropdown
 										select(data-metric="Employment Status")
 											option(value="All") All
 											option(value="Employed - Contractor") Employed - Contractor
@@ -73,8 +71,8 @@ block content
 											option(value="Student - currently enrolled") Student - currently enrolled
 											option(value="Unemployed") Unemployed
 								.fi.fi--single-dropdown
-									label Experience 
-									.single-dropdown 
+									label Experience
+									.single-dropdown
 										select(data-metric="Experience")
 											option(value="All") All
 											option(value="Between 3 and 6 years") Between 3 and 6 years
@@ -86,7 +84,7 @@ block content
 							.filter__section
 								.fi.fi--single-dropdown
 									label Industry
-									.single-dropdown 
+									.single-dropdown
 										select(data-metric="Industry")
 											option(value="All") All
 											option(value="Administrative & Support Services") Administrative & Support Services
@@ -117,10 +115,10 @@ block content
 											option(value="Travel") Travel
 											option(value="Unknown") Unknown
 											option(value="Utilities & Public Services") Utilities & Public Services
-								
+
 								.fi.fi--single-dropdown
-									label Company Type 
-									.single-dropdown 
+									label Company Type
+									.single-dropdown
 										select(data-metric="Company Type")
 											option(value="All") All
 											option(value="Agency") Agency
@@ -133,10 +131,10 @@ block content
 											option(value="Small Business (<50)") Small Business (<50)
 											option(value="Unemployed") Unemployed
 											option(value="Unknown") Unknown
-																		
+
 								.fi.fi--single-dropdown
 									label Company Size
-									.single-dropdown 
+									.single-dropdown
 										select(data-metric="Team Size")
 											option(value="All") All
 											option(value="1") 1
@@ -144,5 +142,3 @@ block content
 											option(value="5 to 9") 5 to 9
 											option(value="10 to 14") 10 to 14
 											option(value="15+") 15+
-											
-							
