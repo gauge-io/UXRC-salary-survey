@@ -16,10 +16,16 @@ block content
 
 						.col
 							h3 Legend
-							ul
-								li Medians of quintiles
-								li Average salary amount
-								li Boundaries of quintiles
+							ul.legend
+								li
+									img( src="./static/images/legend/legend1.png" )
+									span Medians of quintiles
+								li
+									img( src="./static/images/legend/legend1.png" )
+									span Average salary amount
+								li
+									img( src="./static/images/legend/legend1.png" )
+									span Boundaries of quintiles
 
 				section.section.section-chart
 					#compensation-graph.section-chart__content 
@@ -39,7 +45,7 @@ block content
 								label Adjust for Cost of Living 
 									.checkbox 
 										input(type="checkbox" data-metric="adjust")
-										
+
 						.filter__section
 							.fi.fi--single-dropdown
 								label Primary 
@@ -62,4 +68,3 @@ block content
 								label Truncate results
 									.checkbox 
 										input(type="checkbox" data-metric="truncate-results")
-							

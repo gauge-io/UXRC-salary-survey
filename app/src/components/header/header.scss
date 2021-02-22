@@ -31,14 +31,36 @@ header.header{
 		ul.menu{
 			display: flex;
 			margin-left: -10px;
-			margin-right: -10px;;
+			margin-right: -10px;
 			li{
 				font-size: 18px;
+				position: relative;
+				padding: 0 10px;
 				&:hover{
 					color: $gold;
 				}
+				&.active{
+					a{
+						&::before{
+						opacity: 1;
+						}
+					}
+				}
 				a{
-					padding: 0 10px;
+					display: flex;
+					padding: 10px 0px;
+					position: relative;
+					&::before{
+						content: '';
+						position: absolute;
+						height: 5px;
+						width: 100%;
+						background-color: $gold;
+						bottom: 0;
+						left: 0;
+						opacity: 0;
+						transition: 0.4s opacity;
+					}
 				}
 			}
 		}

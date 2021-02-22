@@ -11,8 +11,8 @@ import {
 	getGeoJSONArcDataset,
 	getGeoJSONPointDataset,
 	getUniqueOfficeLocations,
-	getOfficeToResidenceArcsDataset,
-} from "./aux.js";
+	getOfficeToResidenceArcsDataset
+} from "./_aux.js";
 
 // mapbox token
 mapboxgl.accessToken =
@@ -22,7 +22,7 @@ class App {
 	constructor() {
 		this.dispatch = d3.dispatch("filterChanged", "dataAvailable");
 		this.data = null;
-		
+
 		this.map;
 
 		getDataset().then((data) => {
@@ -45,6 +45,8 @@ class App {
 					namespace: "index",
 					beforeEnter(data) {},
 					afterEnter(data) {
+						document.querySelector( '[data-page="compensation"]' ).classList.add( 'active' );
+
 						console.log("data", data);
 
 						renderCurrencyFilter("select[data-metric=currency]");
@@ -78,6 +80,8 @@ class App {
 					namespace: "commutation",
 					beforeEnter(data) {},
 					afterEnter(data) {
+						document.querySelector( '[data-page="commutation"]' ).classList.add( 'active' );
+
 						renderCurrencyFilter("select[data-metric=currency]");
 
 						// Render Graph
@@ -97,12 +101,12 @@ class App {
 									const map = app.map;
 
 									// ui related filters
-									if (["commute"].includes(Object.keys(oPayload)[0])) {
+									if ([ "commute" , ].includes(Object.keys(oPayload)[0])) {
 										if (oPayload.commute) {
 											map.setLayoutProperty("arcs-layer", "visibility", oPayload.commute);
 										}
 									} else {
-									
+
 										// add participants data as a source to map
 										map.getSource("participants-source")
 											.setData(getGeoJSONPointDataset(aFilterdData));
@@ -141,7 +145,9 @@ class App {
 				{
 					namespace: "correlation",
 					beforeEnter(data) {},
-					afterEnter(data) {},
+					afterEnter(data) {
+						document.querySelector( '[data-page="correlation"]' ).classList.add( 'active' );
+					},
 					beforeLeave(data) {},
 				},
 			],
@@ -152,7 +158,9 @@ class App {
 						// console.log( 'SPA.js -> first load', data.next.container.dataset.barbaNamespace );
 					},
 
-					leave(data) {},
+					leave(data) {
+						document.querySelectorAll( 'ul.menu li').forEach( item => item.classList.remove( 'active') );
+					},
 					afterLeave(data) {},
 					enter(data) {
 						// console.log( 'barba: enter:', data.next.container.dataset.barbaNamespace );
@@ -174,7 +182,7 @@ class App {
 			const sMetric = this.getAttribute("data-metric"),
 				sValue = this.value;
 			console.log(sMetric, sValue);
-			dispatch.apply("filterChanged", this, [{[sMetric]: sValue}]);
+			dispatch.apply("filterChanged", this, [ {[sMetric]: sValue,} , ]);
 		});
 
 		d3.selectAll(".checkbox input").on("change", function (e) {
@@ -215,12 +223,12 @@ class App {
 	}
 
 	commutation() {
-		
+
 		const map = this.map = new mapboxgl.Map({
 			container: "commutation-map", // Specify the container ID
 			style: "mapbox://styles/mapbox/dark-v10", // Specify which map style to use
 			zoom: 1.34,
-			center: [13.747157081573533, 7.254837457058102],
+			center: [ 13.747157081573533, 7.254837457058102 , ],
 		});
 
 		map.on("load", () => {
@@ -261,8 +269,8 @@ class App {
 					"circle-radius": {
 						base: 5,
 						stops: [
-							[12, 5],
-							[22, 180],
+							[ 12, 5 , ],
+							[ 22, 180 , ],
 						],
 					},
 					// color circles by ethnicity, using a match expression
@@ -291,8 +299,8 @@ class App {
 					//'circle-color': "orange",
 					"line-color": [
 						"interpolate-hcl",
-						["linear"],
-						["number", ["get", "calculated_compensation"]],
+						[ "linear" , ],
+						[ "number", [ "get", "calculated_compensation" , ] , ],
 						40000,
 						"#2DC4B2",
 						60000,
@@ -309,8 +317,8 @@ class App {
 					"line-opacity": 0.75,
 					"line-width": [
 						"interpolate",
-						["linear"],
-						["number", ["get", "calculated_compensation"]],
+						[ "linear" , ],
+						[ "number", [ "get", "calculated_compensation" , ] , ],
 						40000,
 						0.05,
 						60000,
@@ -340,8 +348,8 @@ class App {
 					"circle-radius": {
 						base: 6,
 						stops: [
-							[12, 6],
-							[22, 10],
+							[ 12, 6 , ],
+							[ 22, 10 , ],
 						],
 					},
 					// color circles by ethnicity, using a match expression
@@ -349,8 +357,8 @@ class App {
 					//'circle-color': "orange",
 					"circle-color": [
 						"interpolate-hcl",
-						["linear"],
-						["number", ["get", "calculated_compensation"]],
+						[ "linear" , ],
+						[ "number", [ "get", "calculated_compensation" , ] , ],
 						40000,
 						"#2DC4B2",
 						60000,
@@ -367,7 +375,7 @@ class App {
 					"circle-stroke-width": 1,
 					"circle-stroke-color": [
 						"case",
-						["boolean", ["get", "is_office_same_city"]],
+						[ "boolean", [ "get", "is_office_same_city" , ] , ],
 						"yellow",
 						"transparent",
 					],
