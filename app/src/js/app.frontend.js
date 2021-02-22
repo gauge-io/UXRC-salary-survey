@@ -373,6 +373,13 @@ class App {
 					],
 				},
 			});
+
+			map.on('mouseenter', 'participants-layer', function () {
+				// map.getCanvas().style.cursor = 'pointer';
+			});
+			map.on('mouseleave', 'participants-layer', function () {
+				// map.getCanvas().style.cursor = '';
+			});
 		});
 	}
 }

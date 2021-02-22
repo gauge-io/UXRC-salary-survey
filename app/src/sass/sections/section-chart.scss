@@ -177,6 +177,7 @@ section.section-chart {
 	flex-grow: 1;
 	align-self: stretch;
 	position: relative;
+	height: calc(100vh - 10rem);
 
 	#commutation-map {
 		position: absolute;
@@ -189,6 +190,10 @@ section.section-chart {
 		position: absolute;
 		right: 1rem;
 		top: 1rem;
+
+		.fi label {
+			color: #ffffff;
+		}
 
 		.filter__section {
 			background-color: rgba(25,26,26, 0.5);
