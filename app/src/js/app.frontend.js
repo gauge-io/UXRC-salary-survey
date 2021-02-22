@@ -14,8 +14,8 @@ class App {
 		getDataset().then((data) => {
 			this.data = data;
 			this.dispatch.apply("dataAvailable");
+			console.log("data", data)
 		});
-		renderCurrencyFilter("select[data-metric=currency]");
 	}
 
 	init() {
@@ -29,9 +29,20 @@ class App {
 				// INDEX
 				{
 					namespace: "index",
-					beforeEnter(data) {},
+					beforeEnter(data) {
+						
+					},
 					afterEnter(data) {
 						console.log("data", data)
+
+						renderCurrencyFilter("select[data-metric=currency]");
+
+						// Render Graph
+						dispatch.on("filterChanged.compensation", (oPayload) => {
+							setTimeout(() => {
+								app.compensation();
+							}, 1);
+						});
 
 						if (app.data) {
 							dispatch.apply("filterChanged");
@@ -48,15 +59,33 @@ class App {
 					},
 					beforeLeave(data) {
 						// console.log( 'SPA.js -> leaving index' );
+						dispatch.on("filterChanged.compensation", null);
 					},
 				},
 
 				// CONFIG
 				{
 					namespace: "commutation",
-					beforeEnter(data) {},
-					afterEnter(data) {},
-					beforeLeave(data) {},
+					beforeEnter(data) {
+						
+					},
+					afterEnter(data) {
+						renderCurrencyFilter("select[data-metric=currency]");
+
+						// Render Graph
+						dispatch.on("filterChanged.commutation", (oPayload) => {
+							setTimeout(() => {
+								
+								const aData = JSON.parse(JSON.stringify(app.data));
+								const oFilters = getFilterValues();
+
+								console.log("filterChanged.commutation", oPayload, oFilters);
+							}, 1);
+						});
+					},
+					beforeLeave(data) {
+						dispatch.on("filterChanged.commutation", null);
+					},
 				},
 
 				// ANALYZE
@@ -91,14 +120,6 @@ class App {
 	initEventListeners() {
 		const dispatch = this.dispatch;
 		
-		// Render Graph
-		// TODO: On filter change as well
-		dispatch.on("filterChanged", (oPayload) => {
-			setTimeout(() => {
-				this.compensation();
-			}, 1);
-		});
-
 		// Bind listeners on filters
 		d3.selectAll(".single-dropdown select")
 			.on("change", function (e) {
