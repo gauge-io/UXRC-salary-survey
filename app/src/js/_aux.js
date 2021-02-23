@@ -65,12 +65,46 @@ function renderCompensation(
 		);
 
 	if (!bIsSecondLevel) {
+
+		// Add legend row
+
+		// calculate intervals
+		// const maxVal = maxQuantBoundary * 1.1;
+		// const interval = Math.round(maxVal / 4);
+		// const aIntervals = d3.range(0, maxVal + interval, interval);
+
+		// const scaleLinear = d3
+		// 	.scaleLinear()
+		// 	.domain([0, maxQuantBoundary * 1.1])
+		// 	.range([20, graphWidth - 20])
+		// 	.nice();
+
+		// const axis = d3
+		// 	.axisBottom(scaleLinear)
+		// 	.ticks(4)
+		// 	.tickSize(0);
+		
+		// const legendLi = d3.create("li").classed("cg-li", true);
+		// legendLi.html(`<div><div class="left-content"></div><div class="right-content"></div></div>`);
+		// legendLi.select(".right-content").append("svg").call(axis);
+				
+		// ul.node().insertBefore(legendLi.node(), ul.select("li").node());
+		
+		// keep track of highlighted rows
+		elTargetDom._aHighlightedResidences = elTargetDom._aHighlightedResidences || [];
+
 		liSelection.on("click", (event, d) => {
 			// console.log(event.currentTarget, d);
 			d.expanded = !d.expanded;
 
 			if (!d.expandRendered && d.isPrimary) {
 				d.expandRendered = true;
+				
+				// handle auto-expand/hihgligh scenarios
+				if (!elTargetDom._aHighlightedResidences.includes(d[0])) {
+					elTargetDom._aHighlightedResidences.push(d[0]);
+				}
+
 				renderCompensation(
 					event.currentTarget,
 					d[1],
@@ -80,9 +114,21 @@ function renderCompensation(
 				);
 			}
 
+			// remove from highlighting
+			if (!d.expanded) {
+				const i = elTargetDom._aHighlightedResidences.indexOf(d[0]);
+				elTargetDom._aHighlightedResidences.splice(i, 1);
+			}
+
 			// toggle class
 			d3.select(event.currentTarget).classed("highlighted", d.expanded);
 		});
+
+		// for existing highlighted rows, highlight them
+		liSelection.filter(d => {
+			return elTargetDom._aHighlightedResidences.includes(d[0]);
+		}).dispatch("click");
+		
 	}
 }
 
@@ -340,6 +386,8 @@ function getGroupedData(aData, sPrimaryDimension, sSecondaryDimension) {
  * @param {String} sCalculateMetric
  * @param {Number} fCurrencyFactor
  * @param {Boolean} bAdjustCostOfLiving
+ * 
+ * Sort based on median DSC
  */
 function getQuantileData(
 	aGroupedData,
@@ -393,7 +441,7 @@ function getQuantileData(
 		pd.isPrimary = true;
 	});
 
-	return aGroupedData.sort((a, b) => d3.descending(a[4], b[4]));
+	return aGroupedData.sort((a, b) => d3.descending(a[3], b[3]));
 }
 
 async function getDataset() {
