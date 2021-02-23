@@ -65,7 +65,6 @@ function renderCompensation(
 		);
 
 	if (!bIsSecondLevel) {
-
 		// Add legend row
 
 		// calculate intervals
@@ -83,15 +82,16 @@ function renderCompensation(
 		// 	.axisBottom(scaleLinear)
 		// 	.ticks(4)
 		// 	.tickSize(0);
-		
+
 		// const legendLi = d3.create("li").classed("cg-li", true);
 		// legendLi.html(`<div><div class="left-content"></div><div class="right-content"></div></div>`);
 		// legendLi.select(".right-content").append("svg").call(axis);
-				
+
 		// ul.node().insertBefore(legendLi.node(), ul.select("li").node());
-		
+
 		// keep track of highlighted rows
-		elTargetDom._aHighlightedResidences = elTargetDom._aHighlightedResidences || [];
+		elTargetDom._aHighlightedResidences =
+			elTargetDom._aHighlightedResidences || [];
 
 		liSelection.on("click", (event, d) => {
 			// console.log(event.currentTarget, d);
@@ -99,7 +99,7 @@ function renderCompensation(
 
 			if (!d.expandRendered && d.isPrimary) {
 				d.expandRendered = true;
-				
+
 				// handle auto-expand/hihgligh scenarios
 				if (!elTargetDom._aHighlightedResidences.includes(d[0])) {
 					elTargetDom._aHighlightedResidences.push(d[0]);
@@ -125,10 +125,11 @@ function renderCompensation(
 		});
 
 		// for existing highlighted rows, highlight them
-		liSelection.filter(d => {
-			return elTargetDom._aHighlightedResidences.includes(d[0]);
-		}).dispatch("click");
-		
+		liSelection
+			.filter((d) => {
+				return elTargetDom._aHighlightedResidences.includes(d[0]);
+			})
+			.dispatch("click");
 	}
 }
 
@@ -386,7 +387,7 @@ function getGroupedData(aData, sPrimaryDimension, sSecondaryDimension) {
  * @param {String} sCalculateMetric
  * @param {Number} fCurrencyFactor
  * @param {Boolean} bAdjustCostOfLiving
- * 
+ *
  * Sort based on median DSC
  */
 function getQuantileData(
@@ -521,6 +522,18 @@ function renderCurrencyFilter(elSelector) {
 	selCurrency.filter((d) => d.Code == "USD").attr("selected", true);
 }
 
+function getUniqueParticipantLocations(aData) {
+	const oParticipantsLocationsByLatLon = {};
+	JSON.parse(JSON.stringify(aData)).forEach((d) => {
+		if (d.lat && d.lon) {
+			const lastD = oParticipantsLocationsByLatLon[`${d.lat},${d.lon}`];
+			d.count = lastD ? lastD.count + 1 : 1;
+			oParticipantsLocationsByLatLon[`${d.lat},${d.lon}`] = d;
+		}
+	});
+	return Object.values(oParticipantsLocationsByLatLon);
+}
+
 function getUniqueOfficeLocations(aData) {
 	const oOfficeLocationsByLatLon = {};
 	JSON.parse(JSON.stringify(aData)).forEach((d) => {
@@ -555,73 +568,97 @@ function getOfficeToResidenceArcsDataset(aData) {
 }
 
 function getGeoJSONArcDataset(aData) {
-  const {
-    projection,
-    lineDistance,
-    midpoint,
-    destination,
-    bearing,
-    lineArc,
-    distance,
-  } = turf;
+	const {
+		projection,
+		lineDistance,
+		midpoint,
+		destination,
+		bearing,
+		lineArc,
+		distance,
+	} = turf;
 
-  const aLineFeatures = [];
-  aData.forEach((d) => {
-    const start = {
-        lat: d.office_lat,
-        lon: d.office_lon,
-      },
-      finish = {
-        lat: d.residence_lat,
-        lon: d.residence_lon,
-      };
+	const aLineFeatures = [];
+	aData.forEach((d) => {
+		const start = {
+				lat: d.office_lat,
+				lon: d.office_lon,
+			},
+			finish = {
+				lat: d.residence_lat,
+				lon: d.residence_lon,
+			};
 
-    let route = {
-      type: "LineString",
-      coordinates: [
-        [start.lon, start.lat],
-        [finish.lon, finish.lat],
-      ],
-    };
-    route = projection.toWgs84(route);
-    const lineD = lineDistance(route, { units: "kilometers" });
-    const mp = midpoint(route.coordinates[0], route.coordinates[1]);
-    const center = destination(
-      mp,
-      lineD,
-      bearing(route.coordinates[0], route.coordinates[1]) - 90
-    );
-    const lA = lineArc(
-      center,
-      distance(center, route.coordinates[0]),
-      bearing(center, route.coordinates[1]),
-      bearing(center, route.coordinates[0])
-    );
+		let route = {
+			type: "LineString",
+			coordinates: [
+				[start.lon, start.lat],
+				[finish.lon, finish.lat],
+			],
+		};
+		route = projection.toWgs84(route);
+		const lineD = lineDistance(route, { units: "kilometers" });
+		const mp = midpoint(route.coordinates[0], route.coordinates[1]);
+		const center = destination(
+			mp,
+			lineD,
+			bearing(route.coordinates[0], route.coordinates[1]) - 90
+		);
+		const lA = lineArc(
+			center,
+			distance(center, route.coordinates[0]),
+			bearing(center, route.coordinates[1]),
+			bearing(center, route.coordinates[0])
+		);
 
-    aLineFeatures.push(
-      Object.assign(projection.toMercator(lA), {
-        properties: d,
-      })
-    );
-  });
+		aLineFeatures.push(
+			Object.assign(projection.toMercator(lA), {
+				properties: d,
+			})
+		);
+	});
 
-  return {
-    type: "FeatureCollection",
-    features: aLineFeatures,
-  };
+	return {
+		type: "FeatureCollection",
+		features: aLineFeatures,
+	};
 }
 
 function addMapStyleProperties(aData) {
-  const oFilters = getFilterValues();
+	const oFilters = getFilterValues();
 
-  // add Calculate property
-  return aData.map(d => {
+	// add Calculate property
+	return aData.map((d) => {
+		d.calculated_compensation = d[oFilters.calculate];
 
-    d.calculated_compensation = d[oFilters.calculate];
+		if (!!d["Office - Undefined"]) {
+			d.marker = FLAGS[d["Office - Metro"]];
+		} else if (!!d["Residence - Undefined"]) {
+			d.marker = FLAGS[d["Residence - Metro"]];
+		}
 
-    return d;
-  })
+		return d;
+	});
 }
+
+const FLAGS = {
+	"Coffeyville, KS": "🇨🇦",
+	Calgary: "🇨🇦",
+	London: "🇨🇦",
+	Toronto: "🇨🇦",
+	"Northern / Nord": "🇨🇦",
+	Genève: "🇨🇭",
+	Moffat: "🇬🇧",
+	"Paris 04 Hôtel-de-Ville": "🇫🇷",
+	"La Celle-sous-Gouzon": "🇫🇷",
+	Vihtra: "🇪🇪",
+	"Ons Belang": "🇳🇱",
+	Kreuzberg: "🇩🇪",
+	Niederdorla: "🇩🇪",
+	Korokoro: "🇳🇿",
+	"Tetuán de las Victorias": "🇪🇸",
+	"Bio-os": "🇵🇭",
+};
 
 export {
 	getDataset,
@@ -634,12 +671,12 @@ export {
 	compensationChart,
 	getFilterValues,
 	getFilters,
-  renderCurrencyFilter,
-
-  // Map utils
-  addMapStyleProperties,
-  getGeoJSONArcDataset,
+	renderCurrencyFilter,
+	// Map utils
+	addMapStyleProperties,
+	getGeoJSONArcDataset,
 	getGeoJSONPointDataset,
+	getUniqueParticipantLocations,
 	getUniqueOfficeLocations,
 	getOfficeToResidenceArcsDataset,
 };

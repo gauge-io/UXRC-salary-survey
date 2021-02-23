@@ -11,7 +11,8 @@ import {
 	getGeoJSONArcDataset,
 	getGeoJSONPointDataset,
 	getUniqueOfficeLocations,
-	getOfficeToResidenceArcsDataset
+	getUniqueParticipantLocations,
+	getOfficeToResidenceArcsDataset,
 } from "./_aux.js";
 
 // mapbox token
@@ -267,7 +268,7 @@ class App {
 			// add participants data as a source to map
 			map.addSource("participants-source", {
 				type: "geojson",
-				data: getGeoJSONPointDataset(dataset),
+				data: getGeoJSONPointDataset(getUniqueParticipantLocations(dataset)),
 				cluster: false,
 				// Max zoom to cluster points on
 				clusterMaxZoom: 13,
@@ -304,8 +305,8 @@ class App {
 					},
 					// color circles by ethnicity, using a match expression
 					// https://docs.mapbox.com/mapbox-gl-js/style-spec/#expressions-match
-					"circle-color": "yellow",
-					"circle-opacity": 0.75,
+					"circle-color": "rgb(255,234,0)",
+					"circle-opacity": 0.85,
 				},
 			});
 
@@ -326,30 +327,14 @@ class App {
 					// color circles by ethnicity, using a match expression
 					// https://docs.mapbox.com/mapbox-gl-js/style-spec/#expressions-match
 					//'circle-color': "orange",
-					"line-color": [
-						"interpolate-hcl",
-						[ "linear" , ],
-						[ "number", [ "get", "calculated_compensation" , ] , ],
-						40000,
-						"#2DC4B2",
-						60000,
-						"#3BB3C3",
-						80000,
-						"#669EC4",
-						100000,
-						"#8B88B6",
-						140000,
-						"#A2719B",
-						180000,
-						"#AA5E79",
-					],
-					"line-opacity": 0.75,
+					"line-color": "rgb(54,151,14)",
+					"line-opacity": 0.85,
 					"line-width": [
 						"interpolate",
 						[ "linear" , ],
 						[ "number", [ "get", "calculated_compensation" , ] , ],
 						40000,
-						0.05,
+						0.1,
 						60000,
 						0.25,
 						80000,
@@ -374,33 +359,48 @@ class App {
 				//'source-layer': 'sf2010',
 				paint: {
 					// make circles larger as the user zooms from z12 to z22
-					"circle-radius": {
-						base: 6,
-						stops: [
-							[ 12, 6 , ],
-							[ 22, 10 , ],
-						],
-					},
+					// "circle-radius": {
+					// 	base: 6,
+					// 	stops: [
+					// 		[ 12, 6 , ],
+					// 		[ 22, 10 , ],
+					// 	],
+					// },
+					"circle-radius": [
+						"interpolate",
+						[ "linear" , ],
+						[ "number", [ "get", "count" , ] , ],
+						5,
+						3,
+						25,
+						5,
+						50,
+						8,
+						75,
+						11,
+						100,
+						15,
+					],
 					// color circles by ethnicity, using a match expression
 					// https://docs.mapbox.com/mapbox-gl-js/style-spec/#expressions-match
-					//'circle-color': "orange",
-					"circle-color": [
-						"interpolate-hcl",
-						[ "linear" , ],
-						[ "number", [ "get", "calculated_compensation" , ] , ],
-						40000,
-						"#2DC4B2",
-						60000,
-						"#3BB3C3",
-						80000,
-						"#669EC4",
-						100000,
-						"#8B88B6",
-						140000,
-						"#A2719B",
-						180000,
-						"#AA5E79",
-					],
+					"circle-color": "rgb(54,151,14)",
+					// "circle-color": [
+					// 	"interpolate-hcl",
+					// 	[ "linear" , ],
+					// 	[ "number", [ "get", "calculated_compensation" , ] , ],
+					// 	40000,
+					// 	"#2DC4B2",
+					// 	60000,
+					// 	"#3BB3C3",
+					// 	80000,
+					// 	"#669EC4",
+					// 	100000,
+					// 	"#8B88B6",
+					// 	140000,
+					// 	"#A2719B",
+					// 	180000,
+					// 	"#AA5E79",
+					// ],
 					"circle-stroke-width": 1,
 					"circle-stroke-color": [
 						"case",
@@ -410,6 +410,18 @@ class App {
 					],
 				},
 			});
+
+			// add markers for undefined locations
+			dataset.filter(d => d.marker).forEach(d => {
+				// create a DOM element for the marker
+				var el = document.createElement('div');
+				el.className = 'marker';
+				el.innerHTML = d.marker;
+				
+				var marker = new mapboxgl.Marker(el)
+					.setLngLat([d.lon, d.lat])
+					.addTo(map);
+			})
 
 			map.on('mouseenter', 'participants-layer', function () {
 				// map.getCanvas().style.cursor = 'pointer';
