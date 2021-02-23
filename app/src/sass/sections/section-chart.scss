@@ -132,6 +132,25 @@ section.section-chart {
 			}
 		}
 	}
+
+	#truncated-comp {
+		display: none;
+		&.visible {
+			display: block;
+		}
+		.chart-section {
+			margin: 1rem 0;
+			&--bottom {
+				margin: 3rem 0 1rem 0;
+			}
+		}
+	}
+	#all-comp {
+		display: none;
+		&.visible {
+			display: block;
+		}
+	}
 }
 
 .filter {

@@ -225,9 +225,26 @@ class App {
 
 		// TODO: Truncate
 		if (oFilters["truncate-results"]) {
-		} else {
+			d3.select("#truncated-comp").classed("visible", true);
+			d3.select("#all-comp").classed("visible", false);
+
 			renderCompensation(
-				document.getElementById("compensation-graph"),
+				document.getElementById("top-5"),
+				aQuantData.slice(0, 5),
+				maxQuantBoundary
+			);
+
+			renderCompensation(
+				document.getElementById("bottom-5"),
+				aQuantData.slice(-5),
+				maxQuantBoundary
+			);
+		} else {
+			d3.select("#truncated-comp").classed("visible", false);
+			d3.select("#all-comp").classed("visible", true);
+
+			renderCompensation(
+				document.getElementById("all-comp"),
 				aQuantData,
 				maxQuantBoundary
 			);
