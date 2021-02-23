@@ -22,6 +22,11 @@
 	@media( min-width: 1500px){
 		width: 1400px;
 	}
+	.row.legend {
+		.col {
+				padding-right:60px;
+		}
+	}
 }
 
 .container-fluid{

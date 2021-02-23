@@ -8,6 +8,13 @@ header.header{
 			justify-content: center;
 			align-items: center;
 			flex-direction: row;
+			p {
+				padding-right: 30px;
+			}
+		}
+		a.span{
+			color: $gold;
+			margin-bottom: 5px;
 		}
 	}
 
@@ -23,7 +30,7 @@ header.header{
 		.logo-text{
 			display: flex;
 			flex-direction: column;
-			margin-left: 10px;
+			margin-left: 15px;
 			span:nth-child(2){
 				color: $gold;
 			}
@@ -52,7 +59,7 @@ header.header{
 				}
 				a{
 					display: flex;
-					padding: 10px 0px;
+					padding: 20px 0px;
 					position: relative;
 					&::before{
 						content: '';
