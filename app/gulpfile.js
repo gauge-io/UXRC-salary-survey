@@ -84,6 +84,7 @@ const watching = () => {
 		[
 			'./src/js/app.frontend.js',
 			'./src/components/**/*.js',
+			'./src/js/_aux.js',
 			// './src/components/store/*.js',
 			// './src/components/input-file/*.js',
 		],
