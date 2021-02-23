@@ -18,44 +18,44 @@ block content
 							h3 Legend
 							ul.legend
 								li
-									img( src="./static/images/legend/legend1.png" )
+									img( src="./static/images/legend/box-1.png" style='width:80px;')
 									span Medians of quintiles
 								li
-									img( src="./static/images/legend/legend1.png" )
+									img( src="./static/images/legend/box-2.png" style='width:80px;')
 									span Average salary amount
 								li
-									img( src="./static/images/legend/legend1.png" )
+									img( src="./static/images/legend/box-3.png" style='width:80px;')
 									span Boundaries of quintiles
 
 				section.section.section-chart
-					#compensation-graph.section-chart__content 
+					#compensation-graph.section-chart__content
 					#filter.section-chart__filter.filter
 						.filter__section
 							.fi.fi--single-dropdown
-								label Calculate 
-								.single-dropdown 
+								label Calculate
+								.single-dropdown
 									select(data-metric="calculate")
-										option(value="base_usd") Base Salary Only 
-										option(value="total_compensation") Total Compensation  
+										option(value="base_usd") Base Salary Only
+										option(value="total_compensation") Total Compensation
 							.fi.fi--single-dropdown
 								label Currency
-								.single-dropdown 
+								.single-dropdown
 									select(data-metric="currency")
 							.fi.fi--checkbox
-								label Adjust for Cost of Living 
-									.checkbox 
+								label Adjust for Cost of Living
+									.checkbox
 										input(type="checkbox" data-metric="adjust")
 
 						.filter__section
 							.fi.fi--single-dropdown
-								label Primary 
-								.single-dropdown 
+								label Primary
+								.single-dropdown
 									select(data-metric="primary")
 										option(value="United States") Metro Areas (US Only)
 										option(value="International") International
 							.fi.fi--single-dropdown
-								label Secondary 
-								.single-dropdown 
+								label Secondary
+								.single-dropdown
 									select(data-metric="secondary")
 										option(value="Education") Education
 										option(value="Experience") Experience
@@ -66,5 +66,5 @@ block content
 										option(value="Gender") Gender
 							.fi.fi--checkbox
 								label Truncate results
-									.checkbox 
+									.checkbox
 										input(type="checkbox" data-metric="truncate-results")
