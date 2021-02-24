@@ -57,7 +57,7 @@ function renderCompensation(
         </div>
         `
 	);
-	
+
 	// add compensation chart
 	liSelection.select(".right-content").each(function(d){
 		compensationChart(
@@ -205,15 +205,15 @@ function compensationChart(elTargetDom, data, maxValue, cWidth = 400, height = 5
 			const i = data.indexOf(d);
 			const t = [
 				"Bottom 25%",
-				"Bottom but one 25%",
 				"Second 25%",
+				"Third 25%",
 				"Top 25%",
 				"Average",
 			];
 
 			showTooltip(`<label>${t[i]}</label><label>${currencyCode} ${currencyFormat(d)}</label>`, e.pageX, e.pageY);
 		})
-		.on("mouseout", (e, d) => { 
+		.on("mouseout", (e, d) => {
 			hideTooltip();
 		});
 
@@ -439,7 +439,7 @@ function getQuantileData(
 		const aPDLevelSalary = [];
 		const quantile = d3.scaleQuantile().range(["A", "B", "C", "D", "E"]);
 		const aMaxQ = [];
-		
+
 		pd[1].forEach((sd) => {
 			const sFieldName = bAdjustCostOfLiving
 				? `adjusted_${sCalculateMetric}`
@@ -510,7 +510,7 @@ function getFilterValues() {
 
 		if ((el = d3.select(this).select("select").node())) {
 			oFilters[el.getAttribute("data-metric")] = el.value;
-			// add currency code 
+			// add currency code
 			if (oFilters.currency && !oFilters.currencyCode) {
 				oFilters.currencyCode = Array.from(el.selectedOptions)[0].getAttribute("data-code");
 			}
@@ -606,7 +606,7 @@ function getUniqueOfficeLocations(aData) {
 
 			d.aSalary.push(d.adjusted_calculated_compensation);
 			d.avg_calculated_compensation = d3.mean(d.aSalary);
-			
+
 			d.lat = d.office_lat;
 			d.lon = d.office_lon;
 		}
