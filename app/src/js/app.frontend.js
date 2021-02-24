@@ -32,12 +32,12 @@ class App {
 		getDataset().then((data) => {
 			this.data = data;
 			this.dispatch.apply("dataAvailable");
-			console.log("data", data);
+			// console.log("data", data);
 		});
 	}
 
 	init() {
-		console.log("app.frontend.min.js -> App -> init()");
+		// console.log("app.frontend.min.js -> App -> init()");
 		const dispatch = this.dispatch;
 		const app = this;
 
@@ -55,7 +55,7 @@ class App {
 					afterEnter(data) {
 						document.querySelector( '[data-page="compensation"]' ).classList.add( 'active' );
 
-						console.log("data", data);
+						// console.log("data", data);
 
 						setTimeout(() => {
 
@@ -110,7 +110,7 @@ class App {
 
 									const aFilterdData = addMapStyleProperties(applyFiltersOnData(getFilters(), aData));
 
-									console.log("filterChanged.commutation", oPayload, aFilterdData);
+									// console.log("filterChanged.commutation", oPayload, aFilterdData);
 
 									if (!app.bMapRendered) {
 										app.bMapRendered = true;
@@ -215,7 +215,7 @@ class App {
 		d3.selectAll(".single-dropdown select").on("change", function (e) {
 			const sMetric = this.getAttribute("data-metric"),
 				sValue = this.value;
-			console.log(sMetric, sValue);
+			// console.log(sMetric, sValue);
 			dispatch.apply("filterChanged", this, [ {[sMetric]: sValue,} , ]);
 		});
 
@@ -223,7 +223,7 @@ class App {
 		d3.selectAll(".checkbox input").on("change", function (e) {
 			const sMetric = this.getAttribute("data-metric"),
 				sValue = this.value;
-			console.log(sMetric, sValue);
+			// console.log(sMetric, sValue);
 			dispatch.apply("filterChanged");
 		});
 	}

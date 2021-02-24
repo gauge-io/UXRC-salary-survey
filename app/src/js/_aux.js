@@ -33,8 +33,6 @@ function renderCompensation(
 	const graphWidth =
 		iGraphWidth || Math.floor(0.7 * elWrapper.getBoundingClientRect().width);
 
-	console.log(graphWidth);
-
 	const ul = d3.select(elUl);
 	ul.classed("cg-group", true);
 
