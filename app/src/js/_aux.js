@@ -204,8 +204,8 @@ function compensationChart(elTargetDom, data, maxValue, cWidth = 400, height = 5
 			const i = data.indexOf(d);
 			const t = [
 				"Bottom 25%",
-				"Second 25%",
 				"Third 25%",
+				"Second 25%",
 				"Top 25%",
 				"Average",
 			];
