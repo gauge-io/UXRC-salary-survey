@@ -470,7 +470,7 @@ function getQuantileData(
 			aPDLevelSalary.push.apply(aPDLevelSalary, aSalary);
 		});
 
-		pd[1].sort((a, b) => d3.descending(a[3], b[3]));
+		pd[1] = pd[1].filter(a => a[0]).sort((a, b) => d3.descending(a[3], b[3]));
 
 		// primary dimension level details
 		quantile.domain(aPDLevelSalary);
