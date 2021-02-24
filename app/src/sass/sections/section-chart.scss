@@ -203,6 +203,7 @@ section.section-chart {
 		top: 0;
 		bottom: 0;
 		width: 100%;
+		overflow:hidden;
 	}
 
 	#filter {
@@ -240,6 +241,7 @@ section.section-chart {
 	font-size: small;
 	margin: 0 1rem;
 	min-width: 5rem;
+	pointer-events: none;
 	
 	label {
 		display: block;
@@ -248,5 +250,18 @@ section.section-chart {
 		&:last-child {
 			margin-bottom: 0;
 		}
+
+		&.sep {
+			margin: 0.75rem 0;
+		}
+		&.nom {
+			margin-bottom: 0.1rem;
+		}
 	}
+}
+
+.mapboxgl-popup {
+	max-width: 400px;
+	font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	pointer-events: none;
 }

@@ -12,7 +12,10 @@ import {
 	getGeoJSONPointDataset,
 	getUniqueOfficeLocations,
 	getUniqueParticipantLocations,
-	getOfficeToResidenceArcsDataset
+	getOfficeToResidenceArcsDataset,
+	showTooltip,
+	hideTooltip,
+	currencyFormat,
 } from "./_aux.js";
 
 // mapbox token
@@ -114,7 +117,7 @@ class App {
 
 										// add participants data as a source to map
 										map.getSource("participants-source")
-											.setData(getGeoJSONPointDataset(aFilterdData));
+											.setData(getGeoJSONPointDataset(getUniqueParticipantLocations(aFilterdData)));
 
 										// add office locations data as a source
 										map.getSource("office-source")
@@ -417,23 +420,112 @@ class App {
 			});
 
 			// add markers for undefined locations
-			dataset.filter(d => d.marker).forEach(d => {
-				// create a DOM element for the marker
-				var el = document.createElement('div');
-				el.className = 'marker';
-				el.innerHTML = d.marker;
+			// dataset.filter(d => d.marker).forEach(d => {
+			// 	// create a DOM element for the marker
+			// 	var el = document.createElement('div');
+			// 	el.className = 'marker';
+			// 	el.innerHTML = d.marker;
 
-				var marker = new mapboxgl.Marker(el)
-					.setLngLat([ d.lon, d.lat , ])
-					.addTo(map);
-			});
+			// 	var marker = new mapboxgl.Marker(el)
+			// 		.setLngLat([ d.lon, d.lat , ])
+			// 		.addTo(map);
+			// });
 
-			map.on('mouseenter', 'participants-layer', function () {
-				// map.getCanvas().style.cursor = 'pointer';
+			map.on('mousemove', 'participants-layer', function (e) {
+				map.getCanvas().style.cursor = 'pointer';
+
+				const elMap = document.getElementById("commutation-map");
+				const { top } = elMap.getBoundingClientRect();
+				
+				const { x, y } = e.point;
+				const datum = e.features[0].properties;
+
+				const { currencyCode } = getFilterValues();
+				
+				const coordinates = e.features[0].geometry.coordinates.slice();
+
+				const _tipContent = `
+					<label class="nom">${datum.residence}</label>
+					<label class="sep"></label>
+					<label class="nom">${datum.count} Respondent${datum.count > 1 ? 's' : ''}</label>
+					<label class="sep"></label>
+					<label class="nom">Average Salary – ${currencyCode} ${currencyFormat(datum.avg_calculated_compensation)}</label>
+				`;
+				showTooltip(_tipContent, x + 60, y + top + window.scrollY);
+
+				// mapPopup
+				// 	.setLngLat(coordinates)
+				// 	.setHTML(d3.create("div").html(`${datum.base_usd}`).node().innerHTML)
+				// 	.addTo(map);
 			});
 			map.on('mouseleave', 'participants-layer', function () {
-				// map.getCanvas().style.cursor = '';
+				map.getCanvas().style.cursor = '';
+				hideTooltip();
 			});
+
+			map.on('mousemove', 'office-layer', function (e) {
+				map.getCanvas().style.cursor = 'pointer';
+
+				const elMap = document.getElementById("commutation-map");
+				const { top } = elMap.getBoundingClientRect();
+				
+				const { x, y } = e.point;
+				const datum = e.features[0].properties;
+
+				const { currencyCode } = getFilterValues();
+				
+				const coordinates = e.features[0].geometry.coordinates.slice();
+
+				const _tipContent = `
+					<label class="nom">${datum.residence}</label>
+					<label class="sep"></label>
+					<label class="nom">${datum.count} Respondent${datum.count > 1 ? 's' : ''}</label>
+					<label class="sep"></label>
+					<label class="nom">Average Salary – ${currencyCode} ${currencyFormat(datum.avg_calculated_compensation)}</label>
+				`;
+				showTooltip(_tipContent, x + 60, y + top + window.scrollY);
+
+			});
+			map.on('mouseleave', 'office-layer', function () {
+				map.getCanvas().style.cursor = '';
+				hideTooltip();
+			});
+
+			map.on('mousemove', 'arcs-layer', function (e) {
+				map.getCanvas().style.cursor = 'pointer';
+
+				const elMap = document.getElementById("commutation-map");
+				const { top } = elMap.getBoundingClientRect();
+				
+				const { x, y } = e.point;
+				const datum = e.features[0].properties;
+
+				const { currencyCode } = getFilterValues();
+				
+				const coordinates = e.features[0].geometry.coordinates.slice();
+
+				const getPositionsHTML = (aPositions) => aPositions.map(p => `<label class="nom">${p}</label>`).join('');
+
+				const _tipContent = `
+					<label class="nom">${datum.residence}</label>
+					<label class="sep"></label>
+					<label class="nom">${datum.office_metro}, ${datum.office_country}</label>
+					<label class="sep"></label>
+					<label class="nom">${datum.count} Respondent${datum.count > 1 ? 's' : ''}</label>
+					<label class="sep"></label>
+					<label class="nom">Average Salary – ${currencyCode} ${currencyFormat(datum.avg_calculated_compensation)}</label>
+					<label class="sep"></label>
+					${getPositionsHTML(JSON.parse(datum.aPositions) || [])}
+				`;
+				showTooltip(_tipContent, x + 60, y + top + window.scrollY);
+
+			});
+
+			map.on('mouseleave', 'arcs-layer', function () {
+				map.getCanvas().style.cursor = '';
+				hideTooltip();
+			});
+
 		});
 	}
 }

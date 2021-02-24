@@ -383,7 +383,7 @@ function getFilters() {
 	const aKeys = Object.keys(oFilters);
 	const aFilters = aKeys
 		.filter((k) => {
-			return !["calculate", "commute", "currency", "colorization"].includes(k);
+			return !["calculate", "commute", "currency", "currencyCode", "colorization"].includes(k);
 		})
 		.map((k) => {
 			return {
@@ -579,9 +579,14 @@ function getUniqueParticipantLocations(aData) {
 	const oParticipantsLocationsByLatLon = {};
 	JSON.parse(JSON.stringify(aData)).forEach((d) => {
 		if (d.lat && d.lon) {
-			const lastD = oParticipantsLocationsByLatLon[`${d.lat},${d.lon}`];
+			let lastD = oParticipantsLocationsByLatLon[`${d.lat},${d.lon}`];
 			d.count = lastD ? lastD.count + 1 : 1;
+			d.aSalary = lastD ? lastD.aSalary : [];
+
 			oParticipantsLocationsByLatLon[`${d.lat},${d.lon}`] = d;
+
+			d.aSalary.push(d.adjusted_calculated_compensation);
+			d.avg_calculated_compensation = d3.mean(d.aSalary);
 		}
 	});
 	return Object.values(oParticipantsLocationsByLatLon);
@@ -591,7 +596,15 @@ function getUniqueOfficeLocations(aData) {
 	const oOfficeLocationsByLatLon = {};
 	JSON.parse(JSON.stringify(aData)).forEach((d) => {
 		if (d.office_lat && d.office_lon && !d.is_office_same_city) {
+			let lastD = oOfficeLocationsByLatLon[`${d.office_lat},${d.office_lon}`];
+			d.count = lastD ? lastD.count + 1 : 1;
+			d.aSalary = lastD ? lastD.aSalary : [];
+
 			oOfficeLocationsByLatLon[`${d.office_lat},${d.office_lon}`] = d;
+
+			d.aSalary.push(d.adjusted_calculated_compensation);
+			d.avg_calculated_compensation = d3.mean(d.aSalary);
+			
 			d.lat = d.office_lat;
 			d.lon = d.office_lon;
 		}
@@ -617,7 +630,22 @@ function getGeoJSONPointDataset(aData) {
 
 function getOfficeToResidenceArcsDataset(aData) {
 	// Add arcs from office to participants
-	return aData.filter((d) => !d.is_office_same_city);
+	const aPostionMap = {};
+	const getKey = (d) => `${d.office_lat}-${d.office_lon}-${d.residence_lat}-${d.residence_lon}`;
+
+	return aData
+		.filter(d => !d.is_office_same_city)
+		.map((d) => {
+			aPostionMap[getKey(d)] = aPostionMap[getKey(d)] || [];
+			aPostionMap[getKey(d)].push(d);
+			return d;
+		}).map(d => {
+
+			d.aPositions = Array.from(new Set((aPostionMap[getKey(d)] || []).map(d => d.Position)));
+			d.count = (aPostionMap[getKey(d)] || []).length;
+			d.avg_calculated_compensation = d3.mean((aPostionMap[getKey(d)] || []).map(d => d.adjusted_calculated_compensation));
+			return d;
+		});
 }
 
 function getGeoJSONArcDataset(aData) {
@@ -683,6 +711,7 @@ function addMapStyleProperties(aData) {
 	// add Calculate property
 	return aData.map((d) => {
 		d.calculated_compensation = d[oFilters.calculate];
+		d.adjusted_calculated_compensation = d.calculated_compensation * 1 / Number(oFilters.currency);
 
 		if (!!d["Office - Undefined"]) {
 			d.marker = FLAGS[d["Office - Metro"]];
@@ -732,4 +761,7 @@ export {
 	getUniqueParticipantLocations,
 	getUniqueOfficeLocations,
 	getOfficeToResidenceArcsDataset,
+	showTooltip,
+	hideTooltip,
+	currencyFormat,
 };
