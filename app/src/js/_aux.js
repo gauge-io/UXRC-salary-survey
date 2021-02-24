@@ -490,7 +490,9 @@ function getQuantileData(
 		pd.isPrimary = true;
 	});
 
-	return aGroupedData.sort((a, b) => d3.descending(a[3], b[3]));
+	return aGroupedData
+		.filter(d => d[4] > 1)
+		.sort((a, b) => d3.descending(a[3], b[3]));
 }
 
 async function getDataset() {
