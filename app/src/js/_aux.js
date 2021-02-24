@@ -53,16 +53,21 @@ function renderCompensation(
 			}</label>
             </div>
             <div class="right-content">
-                ${compensationChart(
-									[...d[2], d[3]],
-									maxQuantBoundary,
-									graphWidth,
-									35
-								)}
             </div>
         </div>
         `
+	);
+	
+	// add compensation chart
+	liSelection.select(".right-content").each(function(d){
+		compensationChart(
+			this,
+			[...d[2], d[3]],
+			maxQuantBoundary,
+			graphWidth,
+			35
 		);
+	})
 
 	if (!bIsSecondLevel) {
 		// Add legend row
@@ -133,6 +138,8 @@ function renderCompensation(
 	}
 }
 
+const currencyFormat = d3.format(",.2s")
+
 /**
  * Creates a dot chart
  *
@@ -141,10 +148,14 @@ function renderCompensation(
  * @param {*} cWidth
  * @param {*} height
  */
-function compensationChart(data, maxValue, cWidth = 400, height = 50) {
+function compensationChart(elTargetDom, data, maxValue, cWidth = 400, height = 50) {
 	const svg = d3.create("svg").attr("viewBox", [0, 0, cWidth, height]);
 
-	maxValue = maxValue || d3.max(data) * 1.1;
+	const { currencyCode } = getFilterValues();
+
+	elTargetDom.appendChild(svg.node());
+
+	maxValue = maxValue || d3.max(data);
 
 	const scaleLinear = d3
 		.scaleLinear()
@@ -189,9 +200,37 @@ function compensationChart(data, maxValue, cWidth = 400, height = 50) {
 					"rgb(49,153,13)",
 					"rgb(252,254,95)",
 				][i]
-		);
+		)
+		.on("mouseover", (e, d) => {
+			const i = data.indexOf(d);
+			const t = [
+				"Bottom 25%",
+				"Bottom but one 25%",
+				"Second 25%",
+				"Top 25%",
+				"Average",
+			];
+
+			showTooltip(`<label>${t[i]}</label><label>${currencyCode} ${currencyFormat(d)}</label>`, e.pageX, e.pageY);
+		})
+		.on("mouseout", (e, d) => { 
+			hideTooltip();
+		});
 
 	return svg.node().outerHTML;
+}
+
+function showTooltip(sHTML, x, y) {
+	const tooltip = document.getElementById("tooltip");
+	tooltip.innerHTML = sHTML;
+	tooltip.style.top = `${y}px`;
+	tooltip.style.left = `${x}px`;
+	tooltip.style.display = "block";
+}
+
+function hideTooltip() {
+	const tooltip = document.getElementById("tooltip");
+	tooltip.style.display = "none";
 }
 
 /**
@@ -399,7 +438,8 @@ function getQuantileData(
 	aGroupedData.forEach((pd) => {
 		const aPDLevelSalary = [];
 		const quantile = d3.scaleQuantile().range(["A", "B", "C", "D", "E"]);
-
+		const aMaxQ = [];
+		
 		pd[1].forEach((sd) => {
 			const sFieldName = bAdjustCostOfLiving
 				? `adjusted_${sCalculateMetric}`
@@ -416,18 +456,24 @@ function getQuantileData(
 				sd[3] = d3.median(aSalary);
 				// number of records
 				sd[4] = aSalary.length;
+				// max value
+				sd[5] = d3.max(sd[2]);
 			} else {
 				// add calculated values
 				sd.push(quantile.quantiles());
 				sd.push(d3.median(aSalary));
 				sd.push(aSalary.length);
+				// max value
+				sd.push(d3.max(sd[2]));
 			}
+
+			aMaxQ.push(sd[5]);
 
 			// push to primary dimension level for calculation
 			aPDLevelSalary.push.apply(aPDLevelSalary, aSalary);
 		});
 
-		pd[1].sort((a, b) => d3.ascending(a[3], b[3]));
+		pd[1].sort((a, b) => d3.descending(a[3], b[3]));
 
 		// primary dimension level details
 		quantile.domain(aPDLevelSalary);
@@ -438,6 +484,8 @@ function getQuantileData(
 		pd[3] = d3.median(aPDLevelSalary);
 		// number of records
 		pd[4] = aPDLevelSalary.length;
+		// max value
+		pd[5] = d3.max(aMaxQ);
 
 		pd.isPrimary = true;
 	});
@@ -460,6 +508,10 @@ function getFilterValues() {
 
 		if ((el = d3.select(this).select("select").node())) {
 			oFilters[el.getAttribute("data-metric")] = el.value;
+			// add currency code 
+			if (oFilters.currency && !oFilters.currencyCode) {
+				oFilters.currencyCode = Array.from(el.selectedOptions)[0].getAttribute("data-code");
+			}
 		}
 		if ((el = d3.select(this).select("input[type=checkbox]").node())) {
 			oFilters[el.getAttribute("data-metric")] = el.checked;
@@ -517,6 +569,7 @@ function renderCurrencyFilter(elSelector) {
 		.data(CURRENCY_DATA)
 		.join("option")
 		.attr("value", (d) => d.Factor)
+		.attr("data-code", (d) => d.Code)
 		.html((d) => `${d.Code} – ${d.Name}`);
 
 	selCurrency.filter((d) => d.Code == "USD").attr("selected", true);

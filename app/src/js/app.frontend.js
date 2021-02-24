@@ -225,9 +225,9 @@ class App {
 			Number(oFilters.currency),
 			oFilters.adjust
 		);
-		const maxQuantBoundary = d3.max(aQuantData, (d) => d[2][3]);
+		const maxQuantBoundary = d3.max(aQuantData, (d) => d[5]);
 
-		console.log("data", aQuantData[0], oFilters);
+		console.log("data", aQuantData, oFilters, maxQuantBoundary);
 
 		// TODO: Truncate
 		if (oFilters["truncate-results"]) {
