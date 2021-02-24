@@ -57,25 +57,30 @@ class App {
 
 						console.log("data", data);
 
-						renderCurrencyFilter("select[data-metric=currency]");
+						setTimeout(() => {
 
-						// Render Graph
-						dispatch.on("filterChanged.compensation", (oPayload) => {
-							setTimeout(() => {
-								app.compensation();
-							}, 1);
-						});
+							renderCurrencyFilter("select[data-metric=currency]");
 
-						if (app.data) {
-							dispatch.apply("filterChanged");
-						} else {
-							const iDataLoadInterval = setInterval(() => {
-								if (app.data) {
-									clearInterval(iDataLoadInterval);
-									dispatch.apply("filterChanged");
-								}
-							}, 100);
-						}
+							app.initEventListeners();
+
+							// Render Graph
+							dispatch.on("filterChanged.compensation", (oPayload) => {
+								setTimeout(() => {
+									app.compensation();
+								}, 1);
+							});
+
+							if (app.data) {
+								dispatch.apply("filterChanged");
+							} else {
+								const iDataLoadInterval = setInterval(() => {
+									if (app.data) {
+										clearInterval(iDataLoadInterval);
+										dispatch.apply("filterChanged");
+									}
+								}, 100);
+							}
+						}, 1000);
 					},
 					beforeLeave(data) {
 						// console.log( 'SPA.js -> leaving index' );
@@ -88,60 +93,68 @@ class App {
 					namespace: "commutation",
 					beforeEnter(data) {},
 					afterEnter(data) {
-						document.querySelector( '[data-page="commutation"]' ).classList.add( 'active' );
+						document.querySelector('[data-page="commutation"]').classList.add('active');
+						
+						setTimeout(() => {
 
-						renderCurrencyFilter("select[data-metric=currency]");
+							renderCurrencyFilter("select[data-metric=currency]");
 
-						// Render Graph
-						dispatch.on("filterChanged.commutation", (oPayload) => {
-							setTimeout(() => {
-								const aData = JSON.parse(JSON.stringify(app.data));
+							app.initEventListeners();
 
-								const aFilterdData = addMapStyleProperties(applyFiltersOnData(getFilters(), aData));
+							delete app.bMapRendered;
 
-								console.log("filterChanged.commutation", oPayload, aFilterdData);
+							// Render Graph
+							dispatch.on("filterChanged.commutation", (oPayload) => {
+								setTimeout(() => {
+									const aData = JSON.parse(JSON.stringify(app.data));
 
-								if (!app.bMapRendered) {
-									app.bMapRendered = true;
-									app.commutation();
-								} else {
+									const aFilterdData = addMapStyleProperties(applyFiltersOnData(getFilters(), aData));
 
-									const map = app.map;
+									console.log("filterChanged.commutation", oPayload, aFilterdData);
 
-									// ui related filters
-									if ([ "commute" , ].includes(Object.keys(oPayload)[0])) {
-										if (oPayload.commute) {
-											map.setLayoutProperty("arcs-layer", "visibility", oPayload.commute);
-										}
+									if (!app.bMapRendered) {
+										app.bMapRendered = true;
+										app.commutation();
 									} else {
 
-										// add participants data as a source to map
-										map.getSource("participants-source")
-											.setData(getGeoJSONPointDataset(getUniqueParticipantLocations(aFilterdData)));
+										const map = app.map;
 
-										// add office locations data as a source
-										map.getSource("office-source")
-											.setData(getGeoJSONPointDataset(getUniqueOfficeLocations(aFilterdData)));
+										// ui related filters
+										if (["commute",].includes(Object.keys(oPayload || {})[0])) {
+											if (oPayload.commute) {
+												map.setLayoutProperty("arcs-layer", "visibility", oPayload.commute);
+											}
+										} else {
 
-										// add office-to-residence arcs data as a source
-										map.getSource("arcs-source")
-											.setData(getGeoJSONArcDataset(getOfficeToResidenceArcsDataset(aFilterdData)));
+											// add participants data as a source to map
+											map.getSource("participants-source")
+												.setData(getGeoJSONPointDataset(getUniqueParticipantLocations(aFilterdData)));
+
+											// add office locations data as a source
+											map.getSource("office-source")
+												.setData(getGeoJSONPointDataset(getUniqueOfficeLocations(aFilterdData)));
+
+											// add office-to-residence arcs data as a source
+											map.getSource("arcs-source")
+												.setData(getGeoJSONArcDataset(getOfficeToResidenceArcsDataset(aFilterdData)));
+										}
 									}
-								}
 
-							}, 1);
-						});
+								}, 1);
+							});
 
-						if (app.data) {
-							dispatch.apply("filterChanged");
-						} else {
-							const iDataLoadInterval = setInterval(() => {
-								if (app.data) {
-									clearInterval(iDataLoadInterval);
-									dispatch.apply("filterChanged");
-								}
-							}, 100);
-						}
+							if (app.data) {
+								dispatch.apply("filterChanged");
+							} else {
+								const iDataLoadInterval = setInterval(() => {
+									if (app.data) {
+										clearInterval(iDataLoadInterval);
+										dispatch.apply("filterChanged");
+									}
+								}, 100);
+							}
+
+						}, 1000);
 
 					},
 					beforeLeave(data) {
@@ -192,13 +205,13 @@ class App {
 			],
 		});
 
-		this.initEventListeners();
 	}
 
 	initEventListeners() {
 		const dispatch = this.dispatch;
 
 		// Bind listeners on filters
+		d3.selectAll(".single-dropdown select").on("change", null);
 		d3.selectAll(".single-dropdown select").on("change", function (e) {
 			const sMetric = this.getAttribute("data-metric"),
 				sValue = this.value;
@@ -206,6 +219,7 @@ class App {
 			dispatch.apply("filterChanged", this, [ {[sMetric]: sValue,} , ]);
 		});
 
+		d3.selectAll(".checkbox input").on("change", null);
 		d3.selectAll(".checkbox input").on("change", function (e) {
 			const sMetric = this.getAttribute("data-metric"),
 				sValue = this.value;
@@ -232,7 +246,7 @@ class App {
 
 		console.log("data", aQuantData, oFilters, maxQuantBoundary);
 
-		// TODO: Truncate
+		// Truncate
 		if (oFilters["truncate-results"]) {
 			d3.select("#truncated-comp").classed("visible", true);
 			d3.select("#all-comp").classed("visible", false);
