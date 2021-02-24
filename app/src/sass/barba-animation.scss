@@ -1,0 +1,7 @@
+
+.animation-content{
+	transition: 0.5s opacity;
+	&.animate{
+		opacity: 0;
+	}
+}

@@ -12,7 +12,7 @@ import {
 	getGeoJSONPointDataset,
 	getUniqueOfficeLocations,
 	getUniqueParticipantLocations,
-	getOfficeToResidenceArcsDataset,
+	getOfficeToResidenceArcsDataset
 } from "./_aux.js";
 
 // mapbox token
@@ -164,21 +164,26 @@ class App {
 						document.querySelector( '#toggle-legend' ).addEventListener( 'click', setLegendIsVisible );
 					},
 
-					leave(data) {
+					async leave(data) {
 						document.querySelectorAll( 'ul.menu li').forEach( item => item.classList.remove( 'active') );
+						document.querySelector( '.animation-content').classList.add( 'animate' );
+						await new Promise(resolve => setTimeout(resolve, 1000));
 
 						document.querySelector( '#toggle-legend' ).removeEventListener( 'click', setLegendIsVisible );
-						console.log( 'leave ');
+						// console.log( 'leave ');
 					},
 					afterLeave(data) {
 
 					},
 					enter(data) {
 						// console.log( 'barba: enter:', data.next.container.dataset.barbaNamespace );
-						console.log( 'enter ');
+						// console.log( 'enter ');
 						document.querySelector( '#toggle-legend' ).addEventListener( 'click', setLegendIsVisible );
 					},
-					afterEnter(data) {},
+					async afterEnter(data) {
+						// await new Promise(resolve => setTimeout(resolve, 500));
+						document.querySelector( '.animation-content').classList.remove( 'animate' );
+					},
 					after(data) {},
 				},
 			],
@@ -417,11 +422,11 @@ class App {
 				var el = document.createElement('div');
 				el.className = 'marker';
 				el.innerHTML = d.marker;
-				
+
 				var marker = new mapboxgl.Marker(el)
-					.setLngLat([d.lon, d.lat])
+					.setLngLat([ d.lon, d.lat , ])
 					.addTo(map);
-			})
+			});
 
 			map.on('mouseenter', 'participants-layer', function () {
 				// map.getCanvas().style.cursor = 'pointer';
