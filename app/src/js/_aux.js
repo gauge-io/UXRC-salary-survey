@@ -159,10 +159,9 @@ function compensationChart(elTargetDom, data, maxValue, cWidth = 400, height = 5
 
 	const scaleLinear = d3
 		.scaleLinear()
-		.domain([0, maxValue * 1.1])
-		.range([20, cWidth - 20]);
-
-	const dist = Math.floor(maxValue / 5);
+		.domain([0, maxValue])
+		.range([0, cWidth])
+		.nice();
 
 	const axis = d3
 		.axisBottom(scaleLinear)

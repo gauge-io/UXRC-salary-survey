@@ -6,7 +6,6 @@ section.section-chart {
 	padding: 0.5rem 0;
 
 	.section-chart {
-		
 		&__content,
 		&__filter {
 			position: relative;
@@ -151,10 +150,15 @@ section.section-chart {
 			display: block;
 		}
 	}
+
+	#truncated-comp,
+	#all-comp {
+		max-height: 80vh;
+		overflow-y: auto;
+	}
 }
 
 .filter {
-
 	&__section {
 		background-color: $bg-gray;
 		margin-bottom: 1rem;
@@ -175,7 +179,6 @@ section.section-chart {
 			}
 		}
 		.checkbox {
-
 		}
 
 		&--checkbox {
@@ -203,7 +206,7 @@ section.section-chart {
 		top: 0;
 		bottom: 0;
 		width: 100%;
-		overflow:hidden;
+		overflow: hidden;
 	}
 
 	#filter {
@@ -216,7 +219,7 @@ section.section-chart {
 		}
 
 		.filter__section {
-			background-color: rgba(25,26,26, 0.5);
+			background-color: rgba(25, 26, 26, 0.5);
 		}
 	}
 
@@ -228,11 +231,10 @@ section.section-chart {
 		width: 10px;
 		height: 10px;
 	}
-
 }
 
 #tooltip {
-	position:absolute;
+	position: absolute;
 	display: none;
 	background-color: #444;
 	padding: 0.5rem;
@@ -242,7 +244,7 @@ section.section-chart {
 	margin: 0 1rem;
 	min-width: 5rem;
 	pointer-events: none;
-	
+
 	label {
 		display: block;
 		margin-bottom: 0.5rem;
@@ -262,6 +264,30 @@ section.section-chart {
 
 .mapboxgl-popup {
 	max-width: 400px;
-	font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	font: 12px/20px "Helvetica Neue", Arial, Helvetica, sans-serif;
 	pointer-events: none;
+}
+
+.box-legend-row {
+	background-color: $table-row-gray;
+	padding: 1rem 0.5rem;
+	margin-bottom: 0.5rem;
+}
+
+.box-legend {
+	margin-left: 29.5%;
+	padding: 0.5rem 1.25rem;
+	position: relative;
+	.lg {
+		top: 0;
+		position: absolute;
+		transform: translateX(-50%);
+		width: fit-content;
+	}
+	.lg:first-child {
+		transform: translateX(0%);
+	}
+	.lg:last-child {
+		transform: translateX(-100%);
+	}
 }

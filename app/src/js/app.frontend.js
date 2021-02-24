@@ -244,7 +244,21 @@ class App {
 		);
 		const maxQuantBoundary = d3.max(aQuantData, (d) => d[5]);
 
-		console.log("data", aQuantData, oFilters, maxQuantBoundary);
+		const iGraphWidth = d3.select(".box-legend").node().offsetWidth - 0;
+
+		// draw legend
+		const scaleLegend = d3.scaleLinear().domain([0, 4]).range([0, maxQuantBoundary]).nice();
+		const scaleLegendPosition = d3.scaleLinear().domain([0, 4]).range([0, iGraphWidth]);
+
+		const { currencyCode } = getFilterValues();
+
+		const selLegends = d3.selectAll(".box-legend").selectAll("div")
+			.data(d3.range(0, 5))
+			.join("div")
+			.classed("lg", true)
+			.attr("style", (d, i) => `left: ${scaleLegendPosition(d)}px;`)
+			.html(d => d ? `${currencyCode} ${currencyFormat(scaleLegend(d))}` : 0);
+		
 
 		// Truncate
 		if (oFilters["truncate-results"]) {
@@ -254,13 +268,17 @@ class App {
 			renderCompensation(
 				document.getElementById("top-5"),
 				aQuantData.slice(0, 5),
-				maxQuantBoundary
+				maxQuantBoundary,
+				false,
+				iGraphWidth
 			);
 
 			renderCompensation(
 				document.getElementById("bottom-5"),
 				aQuantData.slice(-5),
-				maxQuantBoundary
+				maxQuantBoundary,
+				false,
+				iGraphWidth
 			);
 		} else {
 			d3.select("#truncated-comp").classed("visible", false);
@@ -269,7 +287,9 @@ class App {
 			renderCompensation(
 				document.getElementById("all-comp"),
 				aQuantData,
-				maxQuantBoundary
+				maxQuantBoundary,
+				false,
+				iGraphWidth
 			);
 		}
 	}
