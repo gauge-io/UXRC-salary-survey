@@ -459,11 +459,13 @@ class App {
 				const coordinates = e.features[0].geometry.coordinates.slice();
 
 				const _tipContent = `
-					<label class="nom">${datum.residence}</label>
+					<label class="nom">Residence</label>
+					<label class="nom">${datum.residence_metro}, ${datum.residence_country}</label>
 					<label class="sep"></label>
 					<label class="nom">${datum.count} Respondent${datum.count > 1 ? 's' : ''}</label>
 					<label class="sep"></label>
-					<label class="nom">Average Salary – ${currencyCode} ${currencyFormat(datum.avg_calculated_compensation)}</label>
+					<label class="nom">Average Salary</label>
+					<label class="nom">${currencyCode} ${currencyFormat(datum.avg_calculated_compensation)}</label>
 				`;
 				showTooltip(_tipContent, x + 60, y + top + window.scrollY);
 
@@ -491,11 +493,13 @@ class App {
 				const coordinates = e.features[0].geometry.coordinates.slice();
 
 				const _tipContent = `
-					<label class="nom">${datum.residence}</label>
+					<label class="nom">Office</label>
+					<label class="nom">${datum.office_metro}, ${datum.office_country}</label>
 					<label class="sep"></label>
 					<label class="nom">${datum.count} Respondent${datum.count > 1 ? 's' : ''}</label>
 					<label class="sep"></label>
-					<label class="nom">Average Salary – ${currencyCode} ${currencyFormat(datum.avg_calculated_compensation)}</label>
+					<label class="nom">Average Salary</label>
+					<label class="nom">${currencyCode} ${currencyFormat(datum.avg_calculated_compensation)}</label>
 				`;
 				showTooltip(_tipContent, x + 60, y + top + window.scrollY);
 
@@ -521,14 +525,18 @@ class App {
 				const getPositionsHTML = (aPositions) => aPositions.map(p => `<label class="nom">${p}</label>`).join('');
 
 				const _tipContent = `
-					<label class="nom">${datum.residence}</label>
+					<label class="nom">Residence</label>
+					<label class="nom">${datum.residence_metro}, ${datum.residence_country}</label>
 					<label class="sep"></label>
+					<label class="nom">Office</label>
 					<label class="nom">${datum.office_metro}, ${datum.office_country}</label>
 					<label class="sep"></label>
 					<label class="nom">${datum.count} Respondent${datum.count > 1 ? 's' : ''}</label>
 					<label class="sep"></label>
-					<label class="nom">Average Salary – ${currencyCode} ${currencyFormat(datum.avg_calculated_compensation)}</label>
+					<label class="nom">Average Salary</label>
+					<label class="nom">${currencyCode} ${currencyFormat(datum.avg_calculated_compensation)}</label>
 					<label class="sep"></label>
+					<label class="nom">Positions</label>
 					${getPositionsHTML(JSON.parse(datum.aPositions) || [])}
 				`;
 				showTooltip(_tipContent, x + 60, y + top + window.scrollY);
