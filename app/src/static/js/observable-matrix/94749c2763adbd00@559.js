@@ -200,7 +200,7 @@ data.columns
 )});
   main.variable(observer("onHover")).define("onHover", function(){return(
 function onHover(d){
-  console.log(d);
+  // console.log(d);
 }
 )});
   main.variable(observer("hexbinMatrix")).define("hexbinMatrix", ["d3","DOM","onHover"], function(d3,DOM,onHover){return(

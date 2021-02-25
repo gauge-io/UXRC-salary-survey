@@ -238,7 +238,7 @@ function hideTooltip() {
  * @return {Array}          Filtered dataset. Does NOT modifies the input.
  */
 function applyFiltersOnData(aFilters, aData) {
-	var aFilteredData = aData,
+	var aFilteredData = aData || [],
 		aBooleanFilters = [];
 
 	// Loop for each filter type
@@ -357,7 +357,7 @@ function applyFiltersOnData(aFilters, aData) {
 	// Apply functions on the dataset
 	//
 
-	aFilteredData = aFilteredData?.filter(function (d) {
+	aFilteredData = aFilteredData.filter(function (d) {
 		var bPass = true,
 			i = aBooleanFilters.length - 1;
 
