@@ -46,7 +46,8 @@ const vendors_admin_css = require( './gulp/tasks/vendors_admin_css' );
 const vendors_frontend_js = require( './gulp/tasks/vendors_frontend_js' );
 const vendors_frontend_css = require( './gulp/tasks/vendors_frontend_css' );
 const copy = require( './gulp/tasks/copy' );
-const datasets = require( './gulp/tasks/datasets' );
+const datasets = require('./gulp/tasks/datasets');
+const static_js = require('./gulp/tasks/static_js');
 
 const watching = () => {
 	watch(
@@ -114,8 +115,8 @@ const watching = () => {
 	// );
 };
 
-const dev = series( clean, parallel( html_pages, fonts, copy, datasets, vendors_frontend_css, css_frontend, images, vendors_frontend_js, svg ), js_frontend );
-const build = series( modeProduction, clean, parallel( html_pages, copy, datasets, fonts, vendors_frontend_css, css_frontend, vendors_frontend_js, images, svg ), js_frontend );
+const dev = series( clean, parallel( html_pages, fonts, copy, datasets, static_js, vendors_frontend_css, css_frontend, images, vendors_frontend_js, svg ), js_frontend );
+const build = series( modeProduction, clean, parallel( html_pages, copy, datasets, static_js, fonts, vendors_frontend_css, css_frontend, vendors_frontend_js, images, svg ), js_frontend );
 
 exports.clean = clean;
 exports.html_pages = html_pages;
@@ -127,6 +128,7 @@ exports.fonts = fonts;
 exports.svg = svg;
 exports.server = server;
 exports.datasets = datasets;
+exports.static_js = static_js;
 exports.build = build;
 
 switch( $.mode ){

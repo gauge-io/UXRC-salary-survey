@@ -244,6 +244,8 @@ section.section-chart {
 	margin: 0 1rem;
 	min-width: 5rem;
 	pointer-events: none;
+	max-height: 20rem;
+	overflow-y: auto;
 
 	label {
 		display: block;
@@ -259,6 +261,11 @@ section.section-chart {
 		&.nom {
 			margin-bottom: 0.1rem;
 		}
+	}
+
+	&.co-matrix {
+		margin: 0 3rem;
+		pointer-events: all;
 	}
 }
 

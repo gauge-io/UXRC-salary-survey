@@ -561,6 +561,8 @@ VND,Vietnamese Dong,0.00004
 	d3.autoType
 );
 
+const CURRENCY_DATA_MAP = new Map(CURRENCY_DATA.map(d => [d.Code, +d.Factor]));
+
 function renderCurrencyFilter(elSelector) {
 	const selCurrency = d3
 		.select(elSelector)
@@ -722,6 +724,25 @@ function addMapStyleProperties(aData) {
 	});
 }
 
+function addBonusProperties(aData) {
+	// Salary + Equity + Bonus
+	const oFilters = getFilterValues();
+	// add Calculate property
+	return aData.map((d) => {
+
+		d.calculated_compensation = d["base_usd"];
+		const b = format_salary(d["Salary + Equity + Bonus"]);
+		if (b) {
+			d.bonus_equity = b * CURRENCY_DATA_MAP.get(d["Currency Code"]) - d.calculated_compensation;
+		}
+
+		d["Base Salary "] = d.calculated_compensation * 1 / Number(oFilters.currency);
+		d["Bonus + Equity"] =  Number((100 * (d.bonus_equity * 1 / Number(oFilters.currency))/d["Base Salary "]).toFixed(2));
+
+		return d;
+	}).filter(d => d.bonus_equity && d["Bonus + Equity"] < 200);	// filter out faulty records
+}
+
 const FLAGS = {
 	"Coffeyville, KS": "🇨🇦",
 	Calgary: "🇨🇦",
@@ -763,4 +784,5 @@ export {
 	showTooltip,
 	hideTooltip,
 	currencyFormat,
+	addBonusProperties,
 };

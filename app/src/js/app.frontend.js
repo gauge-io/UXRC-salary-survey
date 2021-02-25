@@ -16,6 +16,7 @@ import {
 	showTooltip,
 	hideTooltip,
 	currencyFormat,
+	addBonusProperties,
 } from "./_aux.js";
 
 // mapbox token
@@ -42,7 +43,7 @@ class App {
 		const app = this;
 
 		const setLegendIsVisible = () => {
-			document.querySelector( '.section-legend' ).classList.toggle( 'isVisible' );
+			document.querySelector(".section-legend").classList.toggle("isVisible");
 		};
 
 		barba.init({
@@ -53,15 +54,18 @@ class App {
 					namespace: "index",
 					beforeEnter(data) {},
 					afterEnter(data) {
-						document.querySelector( '[data-page="compensation"]' ).classList.add( 'active' );
+						document
+							.querySelector('[data-page="compensation"]')
+							.classList.add("active");
 
 						// console.log("data", data);
 
 						setTimeout(() => {
-
 							renderCurrencyFilter("select[data-metric=currency]");
 
 							app.initEventListeners();
+
+							d3.select("#tooltip").classed("co-matrix", false);
 
 							// Render Graph
 							dispatch.on("filterChanged.compensation", (oPayload) => {
@@ -93,22 +97,27 @@ class App {
 					namespace: "commutation",
 					beforeEnter(data) {},
 					afterEnter(data) {
-						document.querySelector('[data-page="commutation"]').classList.add('active');
-						
-						setTimeout(() => {
+						document
+							.querySelector('[data-page="commutation"]')
+							.classList.add("active");
 
+						setTimeout(() => {
 							renderCurrencyFilter("select[data-metric=currency]");
 
 							app.initEventListeners();
 
 							delete app.bMapRendered;
 
+							d3.select("#tooltip").classed("co-matrix", false);
+
 							// Render Graph
 							dispatch.on("filterChanged.commutation", (oPayload) => {
 								setTimeout(() => {
 									const aData = JSON.parse(JSON.stringify(app.data));
 
-									const aFilterdData = addMapStyleProperties(applyFiltersOnData(getFilters(), aData));
+									const aFilterdData = addMapStyleProperties(
+										applyFiltersOnData(getFilters(), aData)
+									);
 
 									// console.log("filterChanged.commutation", oPayload, aFilterdData);
 
@@ -116,30 +125,46 @@ class App {
 										app.bMapRendered = true;
 										app.commutation();
 									} else {
-
 										const map = app.map;
 
 										// ui related filters
-										if (["commute",].includes(Object.keys(oPayload || {})[0])) {
+										if (["commute"].includes(Object.keys(oPayload || {})[0])) {
 											if (oPayload.commute) {
-												map.setLayoutProperty("arcs-layer", "visibility", oPayload.commute);
+												map.setLayoutProperty(
+													"arcs-layer",
+													"visibility",
+													oPayload.commute
+												);
 											}
 										} else {
-
 											// add participants data as a source to map
-											map.getSource("participants-source")
-												.setData(getGeoJSONPointDataset(getUniqueParticipantLocations(aFilterdData)));
+											map
+												.getSource("participants-source")
+												.setData(
+													getGeoJSONPointDataset(
+														getUniqueParticipantLocations(aFilterdData)
+													)
+												);
 
 											// add office locations data as a source
-											map.getSource("office-source")
-												.setData(getGeoJSONPointDataset(getUniqueOfficeLocations(aFilterdData)));
+											map
+												.getSource("office-source")
+												.setData(
+													getGeoJSONPointDataset(
+														getUniqueOfficeLocations(aFilterdData)
+													)
+												);
 
 											// add office-to-residence arcs data as a source
-											map.getSource("arcs-source")
-												.setData(getGeoJSONArcDataset(getOfficeToResidenceArcsDataset(aFilterdData)));
+											map
+												.getSource("arcs-source")
+												.setData(
+													getGeoJSONArcDataset(
+														getOfficeToResidenceArcsDataset(aFilterdData)
+													)
+												);
 										}
 									}
-
 								}, 1);
 							});
 
@@ -153,9 +178,7 @@ class App {
 									}
 								}, 100);
 							}
-
 						}, 1000);
-
 					},
 					beforeLeave(data) {
 						dispatch.on("filterChanged.commutation", null);
@@ -167,9 +190,52 @@ class App {
 					namespace: "correlation",
 					beforeEnter(data) {},
 					afterEnter(data) {
-						document.querySelector( '[data-page="correlation"]' ).classList.add( 'active' );
+						document
+							.querySelector('[data-page="correlation"]')
+							.classList.add("active");
+						
+						delete app.bCorrelationRendered;
+
+						setTimeout(() => {
+							renderCurrencyFilter("select[data-metric=currency]");
+
+							app.initEventListeners();
+
+							d3.select("#tooltip").classed("co-matrix", true);
+
+							// Render Graph
+							if (!app.bCorrelationRendered) {
+								app.bCorrelationRendered = true;
+								setTimeout(() => {
+									app.coorelation();
+								}, 1);
+							}
+
+							// Update chart when dataset gets filtered
+							//
+							dispatch.on("filterChanged.correlation", function (oPayload) {
+								const aFilterdData = addBonusProperties(applyFiltersOnData(getFilters(), JSON.parse(JSON.stringify(app.data))));
+								if (app.notebookModule) {
+									app.notebookModule.redefine("data", [], aFilterdData);
+								}
+							});
+
+
+							if (app.data) {
+								dispatch.apply("filterChanged");
+							} else {
+								const iDataLoadInterval = setInterval(() => {
+									if (app.data) {
+										clearInterval(iDataLoadInterval);
+										dispatch.apply("filterChanged");
+									}
+								}, 100);
+							}
+						}, 1000);
 					},
-					beforeLeave(data) {},
+					beforeLeave(data) {
+						dispatch.on("filterChanged.correlation", null);
+					},
 				},
 			],
 			transitions: [
@@ -177,34 +243,43 @@ class App {
 					name: "page-transition",
 					once(data) {
 						// console.log( 'SPA.js -> first load', data.next.container.dataset.barbaNamespace );
-						document.querySelector( '#toggle-legend' ).addEventListener( 'click', setLegendIsVisible );
+						document
+							.querySelector("#toggle-legend")
+							.addEventListener("click", setLegendIsVisible);
 					},
 
 					async leave(data) {
-						document.querySelectorAll( 'ul.menu li').forEach( item => item.classList.remove( 'active') );
-						document.querySelector( '.animation-content').classList.add( 'animate' );
-						await new Promise(resolve => setTimeout(resolve, 1000));
+						document
+							.querySelectorAll("ul.menu li")
+							.forEach((item) => item.classList.remove("active"));
+						document
+							.querySelector(".animation-content")
+							.classList.add("animate");
+						await new Promise((resolve) => setTimeout(resolve, 1000));
 
-						document.querySelector( '#toggle-legend' ).removeEventListener( 'click', setLegendIsVisible );
+						document
+							.querySelector("#toggle-legend")
+							.removeEventListener("click", setLegendIsVisible);
 						// console.log( 'leave ');
 					},
-					afterLeave(data) {
-
-					},
+					afterLeave(data) {},
 					enter(data) {
 						// console.log( 'barba: enter:', data.next.container.dataset.barbaNamespace );
 						// console.log( 'enter ');
-						document.querySelector( '#toggle-legend' ).addEventListener( 'click', setLegendIsVisible );
+						document
+							.querySelector("#toggle-legend")
+							.addEventListener("click", setLegendIsVisible);
 					},
 					async afterEnter(data) {
 						// await new Promise(resolve => setTimeout(resolve, 500));
-						document.querySelector( '.animation-content').classList.remove( 'animate' );
+						document
+							.querySelector(".animation-content")
+							.classList.remove("animate");
 					},
 					after(data) {},
 				},
 			],
 		});
-
 	}
 
 	initEventListeners() {
@@ -216,7 +291,7 @@ class App {
 			const sMetric = this.getAttribute("data-metric"),
 				sValue = this.value;
 			// console.log(sMetric, sValue);
-			dispatch.apply("filterChanged", this, [ {[sMetric]: sValue,} , ]);
+			dispatch.apply("filterChanged", this, [{ [sMetric]: sValue }]);
 		});
 
 		d3.selectAll(".checkbox input").on("change", null);
@@ -247,18 +322,28 @@ class App {
 		const iGraphWidth = d3.select(".box-legend").node().offsetWidth - 0;
 
 		// draw legend
-		const scaleLegend = d3.scaleLinear().domain([0, 4]).range([0, maxQuantBoundary]).nice();
-		const scaleLegendPosition = d3.scaleLinear().domain([0, 4]).range([0, iGraphWidth]);
+		const scaleLegend = d3
+			.scaleLinear()
+			.domain([0, 4])
+			.range([0, maxQuantBoundary])
+			.nice();
+		const scaleLegendPosition = d3
+			.scaleLinear()
+			.domain([0, 4])
+			.range([0, iGraphWidth]);
 
 		const { currencyCode } = getFilterValues();
 
-		const selLegends = d3.selectAll(".box-legend").selectAll("div")
+		const selLegends = d3
+			.selectAll(".box-legend")
+			.selectAll("div")
 			.data(d3.range(0, 5))
 			.join("div")
 			.classed("lg", true)
 			.attr("style", (d, i) => `left: ${scaleLegendPosition(d)}px;`)
-			.html(d => d ? `${currencyCode} ${currencyFormat(scaleLegend(d))}` : 0);
-		
+			.html((d) =>
+				d ? `${currencyCode} ${currencyFormat(scaleLegend(d))}` : 0
+			);
 
 		// Truncate
 		if (oFilters["truncate-results"]) {
@@ -295,17 +380,17 @@ class App {
 	}
 
 	commutation() {
-
-		const map = this.map = new mapboxgl.Map({
+		const map = (this.map = new mapboxgl.Map({
 			container: "commutation-map", // Specify the container ID
 			style: "mapbox://styles/mapbox/dark-v10", // Specify which map style to use
 			zoom: 1.34,
-			center: [ 13.747157081573533, 7.254837457058102 , ],
-		});
+			center: [13.747157081573533, 7.254837457058102],
+		}));
 
 		map.on("load", () => {
-
-			const dataset = addMapStyleProperties(JSON.parse(JSON.stringify(this.data)));
+			const dataset = addMapStyleProperties(
+				JSON.parse(JSON.stringify(this.data))
+			);
 
 			// add participants data as a source to map
 			map.addSource("participants-source", {
@@ -341,8 +426,8 @@ class App {
 					"circle-radius": {
 						base: 5,
 						stops: [
-							[ 12, 5 , ],
-							[ 22, 180 , ],
+							[12, 5],
+							[22, 180],
 						],
 					},
 					// color circles by ethnicity, using a match expression
@@ -373,8 +458,8 @@ class App {
 					"line-opacity": 0.75,
 					"line-width": [
 						"interpolate",
-						[ "linear" , ],
-						[ "number", [ "get", "calculated_compensation" , ] , ],
+						["linear"],
+						["number", ["get", "calculated_compensation"]],
 						40000,
 						1,
 						60000,
@@ -410,8 +495,8 @@ class App {
 					// },
 					"circle-radius": [
 						"interpolate",
-						[ "linear" , ],
-						[ "number", [ "get", "count" , ] , ],
+						["linear"],
+						["number", ["get", "count"]],
 						5,
 						3,
 						25,
@@ -446,7 +531,7 @@ class App {
 					"circle-stroke-width": 1,
 					"circle-stroke-color": [
 						"case",
-						[ "boolean", [ "get", "is_office_same_city" , ] , ],
+						["boolean", ["get", "is_office_same_city"]],
 						"yellow",
 						"transparent",
 					],
@@ -465,27 +550,31 @@ class App {
 			// 		.addTo(map);
 			// });
 
-			map.on('mousemove', 'participants-layer', function (e) {
-				map.getCanvas().style.cursor = 'pointer';
+			map.on("mousemove", "participants-layer", function (e) {
+				map.getCanvas().style.cursor = "pointer";
 
 				const elMap = document.getElementById("commutation-map");
 				const { top } = elMap.getBoundingClientRect();
-				
+
 				const { x, y } = e.point;
 				const datum = e.features[0].properties;
 
 				const { currencyCode } = getFilterValues();
-				
+
 				const coordinates = e.features[0].geometry.coordinates.slice();
 
 				const _tipContent = `
 					<label class="nom">Residence</label>
 					<label class="nom">${datum.residence_metro}, ${datum.residence_country}</label>
 					<label class="sep"></label>
-					<label class="nom">${datum.count} Respondent${datum.count > 1 ? 's' : ''}</label>
+					<label class="nom">${datum.count} Respondent${
+					datum.count > 1 ? "s" : ""
+				}</label>
 					<label class="sep"></label>
 					<label class="nom">Average Salary</label>
-					<label class="nom">${currencyCode} ${currencyFormat(datum.avg_calculated_compensation)}</label>
+					<label class="nom">${currencyCode} ${currencyFormat(
+					datum.avg_calculated_compensation
+				)}</label>
 				`;
 				showTooltip(_tipContent, x + 60, y + top + window.scrollY);
 
@@ -494,55 +583,59 @@ class App {
 				// 	.setHTML(d3.create("div").html(`${datum.base_usd}`).node().innerHTML)
 				// 	.addTo(map);
 			});
-			map.on('mouseleave', 'participants-layer', function () {
-				map.getCanvas().style.cursor = '';
+			map.on("mouseleave", "participants-layer", function () {
+				map.getCanvas().style.cursor = "";
 				hideTooltip();
 			});
 
-			map.on('mousemove', 'office-layer', function (e) {
-				map.getCanvas().style.cursor = 'pointer';
+			map.on("mousemove", "office-layer", function (e) {
+				map.getCanvas().style.cursor = "pointer";
 
 				const elMap = document.getElementById("commutation-map");
 				const { top } = elMap.getBoundingClientRect();
-				
+
 				const { x, y } = e.point;
 				const datum = e.features[0].properties;
 
 				const { currencyCode } = getFilterValues();
-				
+
 				const coordinates = e.features[0].geometry.coordinates.slice();
 
 				const _tipContent = `
 					<label class="nom">Office</label>
 					<label class="nom">${datum.office_metro}, ${datum.office_country}</label>
 					<label class="sep"></label>
-					<label class="nom">${datum.count} Respondent${datum.count > 1 ? 's' : ''}</label>
+					<label class="nom">${datum.count} Respondent${
+					datum.count > 1 ? "s" : ""
+				}</label>
 					<label class="sep"></label>
 					<label class="nom">Average Salary</label>
-					<label class="nom">${currencyCode} ${currencyFormat(datum.avg_calculated_compensation)}</label>
+					<label class="nom">${currencyCode} ${currencyFormat(
+					datum.avg_calculated_compensation
+				)}</label>
 				`;
 				showTooltip(_tipContent, x + 60, y + top + window.scrollY);
-
 			});
-			map.on('mouseleave', 'office-layer', function () {
-				map.getCanvas().style.cursor = '';
+			map.on("mouseleave", "office-layer", function () {
+				map.getCanvas().style.cursor = "";
 				hideTooltip();
 			});
 
-			map.on('mousemove', 'arcs-layer', function (e) {
-				map.getCanvas().style.cursor = 'pointer';
+			map.on("mousemove", "arcs-layer", function (e) {
+				map.getCanvas().style.cursor = "pointer";
 
 				const elMap = document.getElementById("commutation-map");
 				const { top } = elMap.getBoundingClientRect();
-				
+
 				const { x, y } = e.point;
 				const datum = e.features[0].properties;
 
 				const { currencyCode } = getFilterValues();
-				
+
 				const coordinates = e.features[0].geometry.coordinates.slice();
 
-				const getPositionsHTML = (aPositions) => aPositions.map(p => `<label class="nom">${p}</label>`).join('');
+				const getPositionsHTML = (aPositions) =>
+					aPositions.map((p) => `<label class="nom">${p}</label>`).join("");
 
 				const _tipContent = `
 					<label class="nom">Residence</label>
@@ -551,23 +644,101 @@ class App {
 					<label class="nom">Office</label>
 					<label class="nom">${datum.office_metro}, ${datum.office_country}</label>
 					<label class="sep"></label>
-					<label class="nom">${datum.count} Respondent${datum.count > 1 ? 's' : ''}</label>
+					<label class="nom">${datum.count} Respondent${
+					datum.count > 1 ? "s" : ""
+				}</label>
 					<label class="sep"></label>
 					<label class="nom">Average Salary</label>
-					<label class="nom">${currencyCode} ${currencyFormat(datum.avg_calculated_compensation)}</label>
+					<label class="nom">${currencyCode} ${currencyFormat(
+					datum.avg_calculated_compensation
+				)}</label>
 					<label class="sep"></label>
 					<label class="nom">Positions</label>
 					${getPositionsHTML(JSON.parse(datum.aPositions) || [])}
 				`;
 				showTooltip(_tipContent, x + 60, y + top + window.scrollY);
-
 			});
 
-			map.on('mouseleave', 'arcs-layer', function () {
-				map.getCanvas().style.cursor = '';
+			map.on("mouseleave", "arcs-layer", function () {
+				map.getCanvas().style.cursor = "";
 				hideTooltip();
 			});
+		});
+	}
 
+	coorelation() {
+
+		var renders = {
+			graph: "#co-matrix",
+		};
+		for (let i in renders) {
+			renders[i] = document.querySelector(renders[i]);
+		}
+		
+		// Load the notebook, observing its cells with a default Inspector
+		// that simply renders the value of each cell into the provided DOM node.
+		this.runtime = new window.observable.Runtime();
+		
+		this.notebookModule = this.runtime.module(window.observable.notebook, (variable) => {
+			if (renders[variable]) {
+				return new window.observable.Inspector(renders[variable]);
+			}
+			if (variable === "width") {
+			}
+		
+			// Force evaluation of all the other cells in the notebook.
+			//return true;
+		});
+
+		this.notebookModule.redefine(
+			"matrixcolumns",
+			[],
+			["Bonus + Equity", "Base Salary "]
+		);
+
+		const aData = addBonusProperties(applyFiltersOnData(getFilters(), JSON.parse(JSON.stringify(app.data))));
+
+		this.notebookModule.redefine(
+			"data",
+			[],
+			aData
+		);
+		
+		// Dimension of the chart
+		//
+		this.notebookModule.redefine(
+			"width",
+			[],
+			Math.min(document.getElementById("co-matrix").offsetHeight || window.innerHeight, document.getElementById("co-matrix").offsetWidth)
+		);
+
+		// Profile popover
+		//
+		this.notebookModule.redefine("onHover", [], function () {
+			return function onHover(d) {
+				
+				// do we have data?
+				//
+				if (d) {
+					delete d.x;
+					delete d.y;
+					if (d.length) {
+						const aResidences = Array.from(new Set(d.map(p => p.residence))).sort();
+						// 	return `<label>${t[i]}</label><label>${currencyCode} ${currencyFormat(d)}</label>`
+						const _html = `
+							<label class="nom">${d.length} Respondent${d.length > 1 ? 's' : ''}</label>
+							<label class="sep"></label>
+							<label class="nom">Residence${d.length > 1 ? 's' : ''}</label>
+							<label class="sep"></label>
+							${aResidences.map(r => `<label class="nom">${r}</label>`).join("")}
+						`;
+						showTooltip(_html, event.pageX, event.pageY);
+						console.log("tooltip", d);
+					}
+				} else {
+					hideTooltip();
+				}
+			};
 		});
 	}
 }
