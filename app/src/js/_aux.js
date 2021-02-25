@@ -357,7 +357,7 @@ function applyFiltersOnData(aFilters, aData) {
 	// Apply functions on the dataset
 	//
 
-	aFilteredData = aFilteredData.filter(function (d) {
+	aFilteredData = aFilteredData?.filter(function (d) {
 		var bPass = true,
 			i = aBooleanFilters.length - 1;
 
@@ -368,7 +368,7 @@ function applyFiltersOnData(aFilters, aData) {
 		return bPass;
 	});
 
-	return aFilteredData;
+	return aFilteredData || [];
 }
 
 /**
