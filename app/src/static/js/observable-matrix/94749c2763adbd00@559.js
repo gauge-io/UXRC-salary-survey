@@ -234,7 +234,7 @@ function onHover(d){
     
     d3.select(this).selectAll("g").data(x).enter().append("g")
         .attr("transform", (d, i) => `translate(${(columns.length - i - 1) * size},0)`)
-        .each(function(d) { return d3.select(this).call(axis.scale(d)); })
+        .each(function(d, i) { return d3.select(this).call(axis.scale(d).tickFormat(i == 0 ? (v) => `${v}%` : d3.format(".2s") )); })
         .call(g => g.select(".domain").remove())
         .call(g => g.selectAll(".tick line").attr("stroke", "#ddd"));
   }
@@ -251,7 +251,7 @@ function onHover(d){
     
     d3.select(this).selectAll("g").data(y).enter().append("g")
         .attr("transform", (d, i) => `translate(0,${i * size})`)
-        .each(function(d) { return d3.select(this).call(axis.scale(d)); })
+        .each(function(d, i) { return d3.select(this).call(axis.scale(d).tickFormat(i == 0 ? (v) => `${v}%` : d3.format(".2s") )); })
         .call(g => g.select(".domain").remove())
         .call(g => g.selectAll(".tick line").attr("stroke", "#ddd"));
   }
@@ -302,7 +302,9 @@ function onHover(d){
         .attr("transform", d => `translate(${d.x},${d.y})`)
         .style("fill", d => color(d.length))
         .style("stroke", d => color(d.length))
-        .style("Stroke-width", .5);
+        .style("stroke-width", .5)
+        .on("mousemove", d => onHover(d))
+        .on("mouseout", d => onHover(null))
     
   });
   

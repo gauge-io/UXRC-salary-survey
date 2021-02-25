@@ -730,17 +730,17 @@ function addBonusProperties(aData) {
 	// add Calculate property
 	return aData.map((d) => {
 
-		d.calculated_compensation = d["base_usd"];
+		d.calculated_compensation = d["adjusted_base_usd"];
 		const b = format_salary(d["Salary + Equity + Bonus"]);
 		if (b) {
 			d.bonus_equity = b * CURRENCY_DATA_MAP.get(d["Currency Code"]) - d.calculated_compensation;
 		}
 
-		d["Base Salary "] = d.calculated_compensation * 1 / Number(oFilters.currency);
-		d["Bonus + Equity"] =  Number((100 * (d.bonus_equity * 1 / Number(oFilters.currency))/d["Base Salary "]).toFixed(2));
+		d["Total Compensation"] = d.calculated_compensation * 1 / Number(oFilters.currency);
+		d["Bonus + Equity %"] =  Number((100 * (d.bonus_equity * 1 / Number(oFilters.currency))/d["Total Compensation"]).toFixed(2));
 
 		return d;
-	}).filter(d => d.bonus_equity && d["Bonus + Equity"] < 200);	// filter out faulty records
+	}).filter(d => d.bonus_equity && d["Bonus + Equity %"] < 200);	// filter out faulty records
 }
 
 const FLAGS = {

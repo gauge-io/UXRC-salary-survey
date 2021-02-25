@@ -693,7 +693,7 @@ class App {
 		this.notebookModule.redefine(
 			"matrixcolumns",
 			[],
-			["Bonus + Equity", "Base Salary "]
+			["Bonus + Equity %", "Total Compensation"]
 		);
 
 		const aData = addBonusProperties(applyFiltersOnData(getFilters(), JSON.parse(JSON.stringify(app.data))));
@@ -733,7 +733,7 @@ class App {
 							${aResidences.map(r => `<label class="nom">${r}</label>`).join("")}
 						`;
 						showTooltip(_html, event.pageX, event.pageY);
-						console.log("tooltip", d);
+						// console.log("tooltip", d);
 					}
 				} else {
 					hideTooltip();
