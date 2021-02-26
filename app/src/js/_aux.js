@@ -733,7 +733,7 @@ function addBonusProperties(aData) {
 		d.calculated_compensation = d["adjusted_base_usd"];
 		const b = format_salary(d["Salary + Equity + Bonus"]);
 		if (b) {
-			d.bonus_equity = b * CURRENCY_DATA_MAP.get(d["Currency Code"]) - d.calculated_compensation;
+			d.bonus_equity = Math.max(0, b * CURRENCY_DATA_MAP.get(d["Currency Code"]) - d.calculated_compensation);
 		}
 
 		d["Total Compensation"] = d.calculated_compensation * 1 / Number(oFilters.currency);

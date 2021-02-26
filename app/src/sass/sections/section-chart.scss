@@ -298,3 +298,7 @@ section.section-chart {
 		transform: translateX(-100%);
 	}
 }
+
+.brushing path.hex {
+	pointer-events: none;
+}
