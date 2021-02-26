@@ -704,12 +704,18 @@ class App {
 			aData
 		);
 		
+		this.notebookModule.redefine(
+			"padding",
+			[],
+			40
+		);
+
 		// Dimension of the chart
 		//
 		this.notebookModule.redefine(
 			"width",
 			[],
-			Math.min(document.getElementById("co-matrix").offsetHeight || window.innerHeight, document.getElementById("co-matrix").offsetWidth)
+			document.getElementById("co-matrix").offsetWidth
 		);
 
 		// Profile popover
